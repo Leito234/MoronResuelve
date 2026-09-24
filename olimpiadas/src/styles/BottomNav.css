@@ -1,0 +1,15 @@
+.bottom-nav {
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-nav-fab {
+  box-shadow: 0 8px 20px -4px rgba(217, 4, 41, 0.4);
+}
+
+.bottom-nav-link {
+  transition: color 0.15s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.bottom-nav-link:active {
+  transform: scale(0.92);
+}

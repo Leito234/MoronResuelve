@@ -1,0 +1,11 @@
+/* App.css - Contenedor principal de Morón Resuelve */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface, #f7f9fb);
+}
+
+.main-content {
+  flex: 1;
+}

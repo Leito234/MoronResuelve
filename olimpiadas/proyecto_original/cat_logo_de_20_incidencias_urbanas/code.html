@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'on-error-container': '#93000a', 'surface-dim': '#d8dadc', 'tertiary-fixed': '#ffddb8', 'on-primary': '#ffffff', 'background': '#f7f9fb', 'on-primary-fixed': '#410005', 'on-secondary-fixed': '#131b2e', 'surface-container-lowest': '#ffffff', 'inverse-surface': '#2d3133', 'tertiary-container': '#986000', 'on-surface-variant': '#5d3f3d', 'primary': '#ac001e', 'tertiary': '#774a00', 'on-tertiary': '#ffffff', 'on-tertiary-container': '#ffecd9', 'on-tertiary-fixed-variant': '#653e00', 'secondary-fixed-dim': '#bec6e0', 'primary-fixed-dim': '#ffb3af', 'primary-container': '#d90429', 'on-tertiary-fixed': '#2a1700', 'inverse-primary': '#ffb3af', 'surface-bright': '#f7f9fb', 'outline': '#926e6c', 'on-secondary-fixed-variant': '#3f465c', 'error-container': '#ffdad6', 'surface': '#f7f9fb', 'outline-variant': '#e7bcba', 'secondary': '#565e74', 'inverse-on-surface': '#eff1f3', 'on-surface': '#191c1e', 'on-background': '#191c1e', 'on-primary-container': '#ffeae8', 'surface-tint': '#bf0022', 'tertiary-fixed-dim': '#ffb95f', 'surface-variant': '#e0e3e5', 'on-secondary-container': '#5c647a', 'error': '#ba1a1a', 'surface-container': '#eceef0', 'secondary-fixed': '#dae2fd', 'on-error': '#ffffff', 'surface-container-high': '#e6e8ea', 'secondary-container': '#dae2fd', 'surface-container-low': '#f2f4f6', 'on-secondary': '#ffffff', 'primary-fixed': '#ffdad7', 'surface-container-highest': '#e0e3e5', 'on-primary-fixed-variant': '#930018' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'margin': '1rem', 'gutter': '1rem', 'space-sm': '0.5rem', 'gutter-desktop': '1.5rem', 'space-md': '1rem', 'margin-desktop': '2.5rem', 'space-lg': '1.5rem', 'space-xs': '0.25rem', 'space-xl': '2rem' }, fontFamily: { 'body-lg': ['Plus Jakarta Sans'], 'label-sm': ['Plus Jakarta Sans'], 'headline-xl-mobile': ['Outfit'], 'headline-lg-mobile': ['Outfit'], 'headline-md': ['Outfit'], 'headline-lg': ['Outfit'], 'title-md': ['Plus Jakarta Sans'], 'label-md': ['Plus Jakarta Sans'], 'title-lg': ['Plus Jakarta Sans'], 'body-md': ['Plus Jakarta Sans'], 'headline-xl': ['Outfit'] }, fontSize: { 'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.02em', fontWeight: '600' }], 'headline-xl-mobile': ['32px', { lineHeight: '36px', letterSpacing: '-0.02em', fontWeight: '800' }], 'headline-lg-mobile': ['26px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '700' }], 'headline-md': ['22px', { lineHeight: '28px', fontWeight: '700' }], 'headline-lg': ['36px', { lineHeight: '42px', letterSpacing: '-0.02em', fontWeight: '700' }], 'title-md': ['16px', { lineHeight: '22px', fontWeight: '600' }], 'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.04em', fontWeight: '700' }], 'title-lg': ['18px', { lineHeight: '24px', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }], 'headline-xl': ['48px', { lineHeight: '52px', letterSpacing: '-0.03em', fontWeight: '800' }] } } } };</script><style>@layer base{html,body{width:100%;min-height:100%;margin:0;padding:0;background-color:#f7f9fb;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><div class="flex flex-col"><span class="font-headline-md text-headline-md text-primary leading-none tracking-tight">MORÓN</span><span class="font-label-sm text-label-sm text-secondary tracking-widest uppercase">Municipio</span></div><div class="h-6 w-px bg-outline-variant/40 ml-1"></div><div class="flex items-center gap-1 bg-surface-container-high/80 px-2 py-1 rounded-full text-secondary hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-sm text-primary">location_on</span><span class="font-label-sm text-label-sm">Castelar Sur</span><span class="material-symbols-outlined text-xs">expand_more</span></div></div><div class="flex items-center gap-space-sm"><button aria-label="Notificaciones activas" class="relative w-11 h-11 flex items-center justify-center rounded-full bg-surface-container-low text-secondary hover:text-on-surface transition-colors"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-container animate-pulse"></span></button><div class="relative flex items-center"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida/AEtjO1WpXKhpto8R74YS0sS_ukTHt-ToxmFV4JJMpH0S4O_Xq7FH6VhcOSiZYtlaXvECnAQn2gOP78uArErUPBSQwwf0bLEXzxOyrr838CfD4SIVmQ_N7M9Yayxyt5ztOLxb-3_1xS2OWRItHVDEau4FiZYfVJW-EpM6rGXf7DkWVghS_3WSHYFiQn3pN77wGiEjJC8q-UrgTAEx06aFsJuBKPDSSm8NLFkvheahEh76ka6mS-ZcTYjrbaf4vINDkDjdVuoc0QTKdWsD0g"/></div></div></div></header><main class="relative w-full pt-16 pb-24 min-h-screen bg-surface flex flex-col"><div class="flex flex-col w-full px-space-md pb-12">
+<!-- Banner Alerta Inmediata / Emergencias -->
+<div class="relative overflow-hidden rounded-xl bg-inverse-surface text-inverse-on-surface p-space-md shadow-md mb-space-lg">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-primary-fixed-dim">Peligro Inminente</span>
+<span class="px-2 py-0.5 rounded-full bg-primary/30 text-primary-fixed font-label-sm text-label-sm">24hs Morón</span>
+</div>
+<p class="font-title-md text-title-md text-surface-container-lowest mt-0.5">¿Riesgo de vida o caída eléctrica activa?</p>
+<p class="font-body-md text-body-md text-surface-variant/80 mt-1">Para emergencias críticas no esperes un ticket digital. Comunicáte de inmediato:</p>
+<div class="flex items-center gap-2 mt-3 flex-wrap">
+<a class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-transform" href="tel:911">
+<span class="material-symbols-outlined text-base">call</span>
+<span>911 Central</span>
+</a>
+<a class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-highest text-inverse-surface font-label-md text-label-md shadow-sm active:scale-95 transition-transform" href="tel:103">
+<span class="material-symbols-outlined text-base">security</span>
+<span>Defensa Civil: 103</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Header Editorial y Buscador -->
+<div class="flex flex-col mb-space-md">
+<div class="flex items-baseline justify-between mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">Catálogo Municipal</span>
+<span class="font-label-sm text-label-sm text-secondary">20 Categorías Activas</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight">¿Qué querés reportar hoy?</h1>
+<p class="font-body-md text-body-md text-secondary mt-1">Seleccioná el tipo de incidencia para derivar la cuadrilla barrial adecuada en Morón.</p>
+</div>
+<!-- Search Input -->
+<div class="relative w-full mb-space-md">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-xl">search</span>
+<input class="w-full h-12 pl-11 pr-4 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-xl outline-none placeholder:text-secondary/70 focus:bg-surface-container-lowest focus:shadow-sm transition-all" id="categorySearch" placeholder="Buscar bache, luminaria, árbol, basura..." type="search"/>
+</div>
+<!-- Filtros Rápidos / Pills -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 -mx-space-md px-space-md mb-space-md scroll-smooth" id="filterContainer">
+<button class="filter-chip active flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shrink-0 shadow-sm transition-all" data-filter="all">
+<span>Todos</span>
+<span class="px-1.5 py-0.2 rounded-full bg-on-primary/20 text-on-primary text-[10px]">20</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container text-secondary font-label-md text-label-md shrink-0 transition-all hover:bg-surface-container-high" data-filter="vialidad">
+<span class="material-symbols-outlined text-sm">construction</span>
+<span>Vialidad</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container text-secondary font-label-md text-label-md shrink-0 transition-all hover:bg-surface-container-high" data-filter="alumbrado">
+<span class="material-symbols-outlined text-sm">electric_bolt</span>
+<span>Alumbrado &amp; Cables</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container text-secondary font-label-md text-label-md shrink-0 transition-all hover:bg-surface-container-high" data-filter="higiene">
+<span class="material-symbols-outlined text-sm">delete_sweep</span>
+<span>Higiene Urbana</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container text-secondary font-label-md text-label-md shrink-0 transition-all hover:bg-surface-container-high" data-filter="espacios">
+<span class="material-symbols-outlined text-sm">park</span>
+<span>Espacios Verdes</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container text-secondary font-label-md text-label-md shrink-0 transition-all hover:bg-surface-container-high" data-filter="seguridad">
+<span class="material-symbols-outlined text-sm">policy</span>
+<span>Convivencia &amp; Vía</span>
+</button>
+</div>
+<!-- Grid de 2 Columnas: 20 Categorías -->
+<div class="grid grid-cols-2 gap-3" id="categoriesGrid">
+<!-- 01. Baches en las calles -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=baches-calles" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">traffic_jam</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">01</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Baches en calles</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Pavimento hundido, pozos y fisuras vehiculares.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">48-72h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 02. Alumbrado público apagado -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="alumbrado" data-path="nuevo-reporte?cat=alumbrado-apagado" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">lightbulb</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">02</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Alumbrado apagado</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Farolas intermitentes, sin luz o tulipas rotas.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed-dim/40 text-on-tertiary-fixed font-label-sm text-label-sm">24-48h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 03. Semáforos que no funcionan -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=semaforos-fallas" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">traffic</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">03</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Semáforos</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Apagados, titilantes o desincronizados.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">Urgente 6h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 04. Acumulación de basura -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="higiene" data-path="nuevo-reporte?cat=acumulacion-basura" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">delete</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">04</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Acumulación basura</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Microbasurales, residuos fuera de horario.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">24h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 05. Pérdidas de agua -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=perdidas-agua" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">water_damage</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">05</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Pérdidas de agua</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Caños rotos en vereda o calzada pública.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">24-48h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 06. Árboles caídos o en riesgo -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="espacios" data-path="nuevo-reporte?cat=arboles-riesgo" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">nature_people</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">06</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Árboles caídos/riesgo</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Ramas quebradas, troncos o raíces descalzadas.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">Prioridad</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 07. Calles o veredas rotas -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=veredas-rotas" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">broken_image</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">07</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Calles o veredas</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Baldosas levantadas, cordones destruidos.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">Programable</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 08. Señales de tránsito dañadas -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=senales-transito" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">signpost</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">08</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Señales de tránsito</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Carteles doblados, caídos o ilegibles.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">48h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 09. Paradas de colectivo deterioradas -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=paradas-colectivo" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">departure_board</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">09</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Paradas de colectivo</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Refugios rotos, vidrios estallados, sin asiento.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">72h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 10. Graffitis o pintadas no autorizadas -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="higiene" data-path="nuevo-reporte?cat=graffitis" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">format_paint</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">10</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Pintadas / Graffitis</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Frentes públicos o monumentos vandalizados.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">Cuadrilla</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 11. Vehículos abandonados -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="seguridad" data-path="nuevo-reporte?cat=vehiculos-abandonados" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">car_crash</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">11</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Autos abandonados</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Carrocerías quemadas, sin ruedas o en desuso.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">Inspección</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 12. Animales abandonados en la vía pública -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="seguridad" data-path="nuevo-reporte?cat=animales-abandonados" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">pets</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">12</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Fauna Urbana / Zoonosis</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Mascotas heridas, extraviadas o en riesgo.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed-dim/50 text-on-tertiary-fixed font-label-sm text-label-sm">Zoonosis</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 13. Calles inundadas / Sumideros -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=sumideros-inundaciones" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">tsunami</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">13</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Sumideros e Inundación</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Bocas de tormenta tapadas, agua estancada.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">Alerta 12h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 14. Ruidos molestos -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="seguridad" data-path="nuevo-reporte?cat=ruidos-molestos" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">14</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Ruidos molestos</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Música a alto volumen reiterada, obras ilegales.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">Inspección</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 15. Edificios o estructuras en mal estado -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="seguridad" data-path="nuevo-reporte?cat=estructuras-peligro" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">domain</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">15</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Estructuras en riesgo</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Mampostería con desprendimiento, derrumbe.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">Obras</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 16. Bicisendas dañadas u obstruidas -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="vialidad" data-path="nuevo-reporte?cat=bicisendas" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">pedal_bike</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">16</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Bicisendas</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Separadores rotos, pintura borrada u ocupadas.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">48h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 17. Plazas y espacios verdes sin mantenimiento -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="espacios" data-path="nuevo-reporte?cat=espacios-verdes" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">park</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">17</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Plazas y juegos</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Pasto crecido, hamacas rotas o bancos dañados.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">3 a 5 días</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 18. Contenedores dañados o incendiados -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="higiene" data-path="nuevo-reporte?cat=contenedores-danados" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">local_fire_department</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">18</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Contenedores rotos</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Quemados, sin tapa, ruedas rotas o volcados.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">Reemplazo 24h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 19. Obstáculos que impiden el paso -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="seguridad" data-path="nuevo-reporte?cat=obstaculos-paso" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">scan</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">19</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Obstáculos en paso</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Montículos de escombros, veredas bloqueadas.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">48h</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- 20. Cables o postes caídos / peligro eléctrico -->
+<a class="cat-card group flex flex-col justify-between p-3.5 rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all active:scale-[0.98]" data-cat-area="alumbrado" data-path="nuevo-reporte?cat=cables-peligro-electrico" href="#">
+<div>
+<div class="flex items-start justify-between mb-2.5">
+<div class="w-10 h-10 rounded-lg bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="font-headline-md text-headline-md text-surface-container-highest select-none leading-none">20</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">Cables o postes</h3>
+<p class="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">Cables colgando, chispas o postes inclinados.</p>
+</div>
+<div class="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm">Urgente</span>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</div>
+</a>
+</div>
+<!-- Estado Vacío cuando la búsqueda no da resultados -->
+<div class="hidden flex-col items-center justify-center p-space-lg text-center my-6 bg-surface-container-low rounded-xl" id="emptyCatalogState">
+<div class="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary mb-3">
+<span class="material-symbols-outlined text-3xl">search_off</span>
+</div>
+<p class="font-title-md text-title-md text-on-surface">No encontramos esa categoría</p>
+<p class="font-body-md text-body-md text-secondary mt-1 max-w-xs">Podés iniciar un reporte general y el equipo de inspección de Morón lo tipificará por vos.</p>
+<a class="mt-4 px-5 py-2.5 rounded-full bg-primary text-on-primary font-title-md text-title-md active:scale-95 transition-transform" data-path="nuevo-reporte?cat=otro-general" href="#">
+      Crear Reporte General
+    </a>
+</div>
+<!-- Micro-interacción: Footer informativo de Cuadrillas Morón -->
+<div class="mt-space-lg p-space-md rounded-xl bg-surface-container flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-3xl shrink-0">verified</span>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface">Tiempos de Cuadrilla Auditados</span>
+<p class="font-body-md text-body-md text-secondary text-xs mt-0.5">Cada ticket genera un código único de seguimiento geolocalizado en Castelar, Haedo, Morón centro y El Palomar.</p>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const searchInput = document.getElementById('categorySearch');
+    const filterButtons = document.querySelectorAll('.filter-chip');
+    const cards = document.querySelectorAll('.cat-card');
+    const emptyState = document.getElementById('emptyCatalogState');
+    let currentFilter = 'all';
+
+    function filterGrid() {
+      const query = (searchInput.value || '').toLowerCase().trim();
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const area = card.getAttribute('data-cat-area');
+        const text = card.textContent.toLowerCase();
+
+        const matchesFilter = (currentFilter === 'all' || area === currentFilter);
+        const matchesQuery = query === '' || text.includes(query);
+
+        if (matchesFilter && matchesQuery) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+      } else {
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+      }
+    }
+
+    // Buscador interactivo
+    if (searchInput) {
+      searchInput.addEventListener('input', filterGrid);
+    }
+
+    // Chips de filtrado
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary', 'active');
+          b.classList.add('bg-surface-container', 'text-secondary');
+        });
+
+        btn.classList.remove('bg-surface-container', 'text-secondary');
+        btn.classList.add('bg-primary', 'text-on-primary', 'active');
+
+        currentFilter = btn.getAttribute('data-filter') || 'all';
+        filterGrid();
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)]" data-active-classes="text-primary font-title-md"><div class="h-16 px-space-sm flex items-center justify-around relative"><a class="flex flex-col items-center justify-center min-w-[56px] h-14 text-on-surface-variant transition-colors" data-path="inicio-mis-reportes" href="#"><span class="material-symbols-outlined text-2xl">home</span><span class="font-label-sm text-label-sm mt-0.5">Inicio</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] h-14 transition-colors text-primary font-title-md" data-path="catalogo-de-servicios" href="#"><span class="material-symbols-outlined text-2xl">grid_view</span><span class="font-label-sm text-label-sm mt-0.5">Catálogo</span></a><div class="relative -top-5 flex flex-col items-center"><a class="w-14 h-14 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_-4px_rgba(217,4,41,0.4)] active:scale-95 transition-all" data-path="nuevo-reporte" href="#"><span class="material-symbols-outlined text-3xl">add_a_photo</span></a><span class="font-label-sm text-label-sm text-primary font-bold mt-1">Reportar</span></div><a class="flex flex-col items-center justify-center min-w-[56px] h-14 text-on-surface-variant transition-colors" data-path="gestion-municipal" href="#"><div class="relative"><span class="material-symbols-outlined text-2xl">shield_person</span><span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-tertiary-container"></span></div><span class="font-label-sm text-label-sm mt-0.5">Gestión</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-14 text-on-surface-variant transition-colors" data-path="perfil-y-ajustes" href="#"><span class="material-symbols-outlined text-2xl">account_circle</span><span class="font-label-sm text-label-sm mt-0.5">Perfil</span></a></div></nav></body></html>

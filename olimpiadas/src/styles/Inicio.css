@@ -1,0 +1,51 @@
+/* Estilos específicos para la página de Inicio y Mis Reportes Ciudadanos */
+
+.hero-banner-gradient {
+  background: linear-gradient(135deg, var(--color-primary-container, #d90429) 0%, var(--color-primary, #ac001e) 50%, var(--color-inverse-surface, #2d3133) 100%);
+}
+
+.hero-campaign-icon {
+  font-size: 150px;
+  line-height: 1;
+}
+
+.timeline-track {
+  height: 4px;
+  background-color: var(--color-surface-container-highest, #e0e3e5);
+}
+
+.timeline-progress {
+  height: 100%;
+  background-color: var(--color-primary-container, #d90429);
+  transition: width 0.5s ease;
+}
+
+.step-node {
+  width: 28px;
+  height: 28px;
+}
+
+.step-node.active {
+  box-shadow: 0 0 0 4px var(--color-tertiary-fixed, #ffddb8);
+}
+
+.accordion-item {
+  transition: background-color 0.2s ease;
+}
+
+.accordion-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.accordion-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.urgency-badge {
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+}

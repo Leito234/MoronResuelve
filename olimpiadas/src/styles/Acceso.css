@@ -1,0 +1,24 @@
+/* Estilos específicos para la página de Acceso Ciudadano y Registro Morón Resuelve */
+
+.brand-glow-primary {
+  box-shadow: 0 0 80px rgba(172, 0, 30, 0.15);
+}
+
+.auth-tab {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-tab.active {
+  background-color: var(--color-surface-container-lowest, #ffffff);
+  color: var(--color-on-surface, #191c1e);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.auth-input:focus {
+  background-color: var(--color-surface-container-lowest, #ffffff);
+  border-color: var(--color-primary, #ac001e);
+}

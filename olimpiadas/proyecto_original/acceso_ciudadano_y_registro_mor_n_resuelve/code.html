@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'on-error-container': '#93000a', 'surface-dim': '#d8dadc', 'tertiary-fixed': '#ffddb8', 'on-primary': '#ffffff', 'background': '#f7f9fb', 'on-primary-fixed': '#410005', 'on-secondary-fixed': '#131b2e', 'surface-container-lowest': '#ffffff', 'inverse-surface': '#2d3133', 'tertiary-container': '#986000', 'on-surface-variant': '#5d3f3d', 'primary': '#ac001e', 'tertiary': '#774a00', 'on-tertiary': '#ffffff', 'on-tertiary-container': '#ffecd9', 'on-tertiary-fixed-variant': '#653e00', 'secondary-fixed-dim': '#bec6e0', 'primary-fixed-dim': '#ffb3af', 'primary-container': '#d90429', 'on-tertiary-fixed': '#2a1700', 'inverse-primary': '#ffb3af', 'surface-bright': '#f7f9fb', 'outline': '#926e6c', 'on-secondary-fixed-variant': '#3f465c', 'error-container': '#ffdad6', 'surface': '#f7f9fb', 'outline-variant': '#e7bcba', 'secondary': '#565e74', 'inverse-on-surface': '#eff1f3', 'on-surface': '#191c1e', 'on-background': '#191c1e', 'on-primary-container': '#ffeae8', 'surface-tint': '#bf0022', 'tertiary-fixed-dim': '#ffb95f', 'surface-variant': '#e0e3e5', 'on-secondary-container': '#5c647a', 'error': '#ba1a1a', 'surface-container': '#eceef0', 'secondary-fixed': '#dae2fd', 'on-error': '#ffffff', 'surface-container-high': '#e6e8ea', 'secondary-container': '#dae2fd', 'surface-container-low': '#f2f4f6', 'on-secondary': '#ffffff', 'primary-fixed': '#ffdad7', 'surface-container-highest': '#e0e3e5', 'on-primary-fixed-variant': '#930018' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'margin': '1rem', 'gutter': '1rem', 'space-sm': '0.5rem', 'gutter-desktop': '1.5rem', 'space-md': '1rem', 'margin-desktop': '2.5rem', 'space-lg': '1.5rem', 'space-xs': '0.25rem', 'space-xl': '2rem' }, fontFamily: { 'body-lg': ['Plus Jakarta Sans'], 'label-sm': ['Plus Jakarta Sans'], 'headline-xl-mobile': ['Outfit'], 'headline-lg-mobile': ['Outfit'], 'headline-md': ['Outfit'], 'headline-lg': ['Outfit'], 'title-md': ['Plus Jakarta Sans'], 'label-md': ['Plus Jakarta Sans'], 'title-lg': ['Plus Jakarta Sans'], 'body-md': ['Plus Jakarta Sans'], 'headline-xl': ['Outfit'] }, fontSize: { 'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.02em', fontWeight: '600' }], 'headline-xl-mobile': ['32px', { lineHeight: '36px', letterSpacing: '-0.02em', fontWeight: '800' }], 'headline-lg-mobile': ['26px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '700' }], 'headline-md': ['22px', { lineHeight: '28px', fontWeight: '700' }], 'headline-lg': ['36px', { lineHeight: '42px', letterSpacing: '-0.02em', fontWeight: '700' }], 'title-md': ['16px', { lineHeight: '22px', fontWeight: '600' }], 'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.04em', fontWeight: '700' }], 'title-lg': ['18px', { lineHeight: '24px', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }], 'headline-xl': ['48px', { lineHeight: '52px', letterSpacing: '-0.03em', fontWeight: '800' }] } } } };</script><style>@layer base{html,body{width:100%;min-height:100%;margin:0;padding:0;background-color:#f7f9fb;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased pt-safe pb-safe"><main class="relative w-full min-h-screen bg-surface flex flex-col"><div class="flex flex-col w-full pb-8">
+<!-- Top Civic Badge & Atmospheric Brand Glow -->
+<div class="relative overflow-hidden bg-surface-container-lowest px-4 pt-6 pb-8 shadow-sm">
+<div class="absolute -right-12 -top-16 w-52 h-52 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -left-10 top-24 w-40 h-40 bg-secondary-fixed/50 rounded-full blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<!-- Municipality Crest / Identity -->
+<div class="flex items-center justify-center w-20 h-20 bg-surface-container rounded-2xl shadow-inner mb-3 p-2">
+<img alt="Escudo Oficial Municipio de Morón" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5XiRE4R9E-yBJPzIG1mEEoSLRWu__ruKwxTxb4AdkGIG1LbFXDCB2XjNYRaC0zjIIKr9GbZCCQuBtWoda4u6ogn1ioAwUTgkGfqKeqsaACHWJl1J99JmRVbHFOrpyZWYUMVKcyjFl0NDeHATzIqQWzkpnCebigSTMW70qq04zhlKxPhgIDq7HRUhKupKtBZXEADd6eIkKjIAD0iovK9rTpetIhXWW-x1COHKpZ7KCpIaMZ5Zcf4M58oLSm-uNRF_5qg"/>
+</div>
+<!-- Editorial Urgency Typography -->
+<div class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full mb-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Gestión Urbana Morón 2025</span>
+</div>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface tracking-tight mb-2 uppercase">
+        Tu voz en cada rincón de <span class="text-primary underline decoration-primary/30 decoration-4 underline-offset-4">Morón</span>
+</h1>
+<p class="font-body-md text-body-md text-secondary max-w-xs">
+        Plataforma oficial de participación vecinal, seguimiento geolocalizado e intervención barrial inmediata.
+      </p>
+<!-- Editorial Stats Strip -->
+<div class="grid grid-cols-3 gap-2 w-full mt-5 pt-4 bg-surface-container-low rounded-xl p-3">
+<div class="flex flex-col items-center">
+<span class="font-headline-md text-headline-md text-primary">94.2%</span>
+<span class="font-label-sm text-label-sm text-secondary text-center">Intervenciones Morón</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-headline-md text-headline-md text-on-surface">48hs</span>
+<span class="font-label-sm text-label-sm text-secondary text-center">Plazo Cuadrillas</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-headline-md text-headline-md text-tertiary">14 UGC</span>
+<span class="font-label-sm text-label-sm text-secondary text-center">Atención Barrial</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Segmented Tab Bar Switcher -->
+<div class="px-4 mt-5">
+<div class="bg-surface-container-high p-1 rounded-xl flex items-stretch shadow-inner">
+<button class="flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 bg-surface-container-lowest text-on-surface shadow-sm flex items-center justify-center gap-2" id="tab-login" onclick="switchAuthMode('login')">
+<span class="material-symbols-outlined text-base">login</span>
+        Iniciar Sesión
+      </button>
+<button class="flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 text-secondary flex items-center justify-center gap-2" id="tab-register" onclick="switchAuthMode('register')">
+<span class="material-symbols-outlined text-base">person_add</span>
+        Crear Cuenta
+      </button>
+</div>
+</div>
+<!-- Forms Section -->
+<div class="px-4 mt-4">
+<!-- LOGIN FORM -->
+<form class="flex flex-col gap-4 bg-surface-container-lowest p-5 rounded-2xl shadow-sm" id="form-login" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Acceso Vecinal</span>
+<h2 class="font-title-lg text-title-lg text-on-surface">Bienvenido de vuelta</h2>
+<p class="font-body-md text-body-md text-secondary">Ingresá con tu cuenta para gestionar tus solicitudes barriales.</p>
+</div>
+<!-- Field: Correo -->
+<div class="flex flex-col gap-1.5 mt-2">
+<label class="font-label-md text-label-md text-on-surface" for="login-email">Correo Electrónico</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">alternate_email</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 pl-11 pr-4 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="login-email" placeholder="ejemplo@moron.gob.ar o tu mail" type="email"/>
+</div>
+</div>
+<!-- Field: Contraseña -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface" for="login-password">Contraseña</label>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="javascript:void(0)" onclick="openRecoveryModal()">¿Olvidaste tu contraseña?</a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">lock</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 pl-11 pr-11 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="login-password" placeholder="••••••••••••" type="password"/>
+<button class="absolute right-3 text-secondary p-1" onclick="togglePassVisibility('login-password', 'toggle-login-pass-icon')" type="button">
+<span class="material-symbols-outlined text-xl" id="toggle-login-pass-icon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Checkbox Remember -->
+<label class="flex items-center gap-3 cursor-pointer py-1">
+<input checked="" class="w-5 h-5 rounded accent-primary bg-surface-container-low" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface">Recordar mi sesión en este dispositivo</span>
+</label>
+<!-- Primary CTA: Ingresar como Vecino -->
+<button class="w-full py-4 mt-2 bg-primary-container text-on-primary rounded-xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 active:scale-98 transition-transform" type="button">
+<span>Ingresar como Vecino</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<!-- Quick Divider -->
+<div class="relative flex py-2 items-center">
+<div class="flex-grow h-px bg-surface-container-highest"></div>
+<span class="flex-shrink mx-4 font-label-sm text-label-sm text-secondary uppercase">o canal operativo</span>
+<div class="flex-grow h-px bg-surface-container-highest"></div>
+</div>
+<!-- Inspector / Municipal Staff Access -->
+<button class="w-full py-3 px-4 bg-inverse-surface text-inverse-on-surface rounded-xl font-title-md text-title-md flex items-center justify-between shadow-sm active:scale-98 transition-transform" onclick="activateInspectorMode()" type="button">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-tertiary-fixed">shield_person</span>
+<div class="text-left">
+<div class="font-title-md text-title-md text-inverse-on-surface leading-none">Personal Municipal / Inspector</div>
+<div class="font-label-sm text-label-sm text-secondary-fixed-dim mt-0.5">UGC, Tránsito, Higiene Urbana &amp; Cuadrillas</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-sm text-secondary-fixed-dim">navigate_next</span>
+</button>
+</form>
+<!-- REGISTER FORM -->
+<form class="hidden flex flex-col gap-4 bg-surface-container-lowest p-5 rounded-2xl shadow-sm" id="form-register" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-1">
+<div class="inline-flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-base">verified_user</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Alta Única Ciudadana</span>
+</div>
+<h2 class="font-title-lg text-title-lg text-on-surface">Creá tu cuenta barrial</h2>
+<p class="font-body-md text-body-md text-secondary">Tus datos garantizan que las cuadrillas atiendan y validen tus reclamos en tu barrio.</p>
+</div>
+<!-- Name & Last Name (2 Cols Mobile Grid) -->
+<div class="grid grid-cols-2 gap-3 mt-1">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-name">Nombre</label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 px-3 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-name" placeholder="Ej. Lucía" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-lastname">Apellido</label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 px-3 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-lastname" placeholder="Ej. Morales" type="text"/>
+</div>
+</div>
+</div>
+<!-- Field: Correo Electrónico -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-email">Correo Electrónico</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">mail</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 pl-11 pr-4 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-email" placeholder="nombre.vecino@gmail.com" type="email"/>
+</div>
+<span class="font-label-sm text-label-sm text-secondary px-1">Te enviaremos las confirmaciones de avance de obra y tickets.</span>
+</div>
+<!-- Field: Teléfono / WhatsApp -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-phone">Teléfono / WhatsApp de Contacto</label>
+<div class="flex items-center gap-2">
+<span class="px-3.5 py-3.5 bg-surface-container text-on-surface font-title-md text-title-md rounded-xl shadow-inner">+54 9 11</span>
+<div class="relative flex-1 flex items-center">
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 px-3.5 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-phone" placeholder="2345-6789" type="tel"/>
+</div>
+</div>
+</div>
+<!-- Field: UGC o Localidad Selector (Editorial Civic Delight) -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-ugc">Tu Localidad / Barrio en Morón</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">location_city</span>
+<select class="w-full bg-surface-container-low text-on-surface py-3.5 pl-11 pr-8 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all appearance-none" id="reg-ugc">
+<option value="">Seleccioná tu localidad...</option>
+<option value="moron-centro">Morón Centro (UGC 1)</option>
+<option value="haedo">Haedo (UGC 2)</option>
+<option value="el-palomar">El Palomar (UGC 3)</option>
+<option value="castelar-norte">Castelar Norte (UGC 4)</option>
+<option value="castelar-sur">Castelar Sur (UGC 5)</option>
+<option value="moron-sur">Morón Sur (UGC 6)</option>
+<option value="villa-sarmiento">Villa Sarmiento (UGC 7)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 pointer-events-none text-secondary">expand_more</span>
+</div>
+</div>
+<!-- Password & Confirm Password -->
+<div class="grid grid-cols-1 gap-3">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-password">Crear Contraseña</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">key</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 pl-11 pr-4 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-password" placeholder="Mínimo 8 caracteres" type="password"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="reg-password-confirm">Confirmar Contraseña</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary text-xl">lock_reset</span>
+<input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline py-3.5 pl-11 pr-4 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all" id="reg-password-confirm" placeholder="Repetí tu contraseña" type="password"/>
+</div>
+</div>
+</div>
+<!-- Terms & Legal Conditions Checkbox & Drawer Trigger -->
+<div class="p-3.5 bg-surface-container-low rounded-xl flex flex-col gap-2">
+<label class="flex items-start gap-3 cursor-pointer">
+<input class="w-5 h-5 mt-0.5 rounded accent-primary bg-surface-container" id="terms-checkbox" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface leading-tight">
+            Acepto los <button class="text-primary font-title-md text-title-md underline inline" onclick="toggleLegalModal(true)" type="button">Términos y Condiciones de Uso y Privacidad de Datos Ciudadanos</button> del Municipio de Morón.
+          </span>
+</label>
+<div class="flex items-center gap-1.5 text-secondary px-1">
+<span class="material-symbols-outlined text-sm text-tertiary">gavel</span>
+<span class="font-label-sm text-label-sm">Conforme a la Ley Nacional de Protección de Datos Personales N° 25.326.</span>
+</div>
+</div>
+<!-- Primary Action: Crear Cuenta Ciudadana -->
+<button class="w-full py-4 mt-1 bg-primary-container text-on-primary rounded-xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 active:scale-98 transition-transform" type="button">
+<span>Completar Registro Vecinal</span>
+<span class="material-symbols-outlined">how_to_reg</span>
+</button>
+</form>
+</div>
+<!-- Trust & Municipal Transparency Strip -->
+<div class="px-4 mt-6">
+<div class="p-4 bg-surface-container rounded-2xl flex flex-col gap-3">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-primary-fixed text-primary rounded-xl shrink-0">
+<span class="material-symbols-outlined text-2xl">support_agent</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-secondary uppercase">Línea Gratuita de Atención al Vecino</span>
+<div class="flex items-center gap-2 mt-0.5">
+<a class="font-headline-md text-headline-md text-on-surface tracking-tight" href="tel:08006666766">0800-666-6766</a>
+<span class="px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm rounded-md">MORÓN</span>
+</div>
+<span class="font-body-md text-body-md text-secondary mt-1">Lunes a Viernes de 8:00 a 20:00 hs | Sábados 9:00 a 13:00 hs</span>
+</div>
+</div>
+<div class="pt-3 flex items-center justify-between border-none">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-base text-primary">verified</span>
+<span class="font-label-sm text-label-sm">Portal Auditado y Abierto Morón Transparente</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">v2.4.0</span>
+</div>
+</div>
+</div>
+<!-- LEGAL TERMS & CONDITIONS MODAL (Drawer Style) -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm hidden items-end justify-center" id="legal-modal">
+<div class="bg-surface-container-lowest w-full max-h-[85vh] rounded-t-3xl p-5 flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
+<!-- Drawer Handle & Header -->
+<div class="flex flex-col items-center">
+<div class="w-12 h-1.5 bg-surface-variant rounded-full mb-3"></div>
+</div>
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">policy</span>
+<div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Términos y Privacidad Ciudadana</h3>
+<span class="font-label-sm text-label-sm text-secondary">Municipio de Morón • Secretaría de Modernización</span>
+</div>
+</div>
+<button class="p-2 text-secondary hover:text-on-surface rounded-full bg-surface-container-low" onclick="toggleLegalModal(false)" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Legal Text Scrollable Container -->
+<div class="overflow-y-auto space-y-4 pr-1 text-on-surface font-body-md text-body-md my-2 py-1 max-h-96">
+<div class="bg-surface-container-low p-3 rounded-xl">
+<h4 class="font-title-md text-title-md text-primary mb-1">1. Objeto y Alcance del Servicio</h4>
+<p class="text-secondary font-body-md text-body-md">
+            La plataforma oficial "Morón Resuelve" tiene por finalidad habilitar un canal directo, trazable y georreferenciado entre la ciudadanía del Partido de Morón y las diferentes áreas de servicios públicos municipales (bacheo, luminarias, podas preventivas, higiene urbana, arbolado y emergencias no críticas).
+          </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl">
+<h4 class="font-title-md text-title-md text-primary mb-1">2. Protección de Datos y Confidencialidad</h4>
+<p class="text-secondary font-body-md text-body-md">
+            En cumplimiento estricto con la Ley Nacional N° 25.326 de Protección de Datos Personales, sus datos identificatorios (Nombre, DNI, Teléfono y Domicilio) no serán publicados abiertamente ni cedidos a terceros. Se utilizarán exclusivamente con fines de verificación de incidencias urbanas y trazabilidad pública municipal.
+          </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl">
+<h4 class="font-title-md text-title-md text-primary mb-1">3. Veracidad de los Reportes y Uso Responsable</h4>
+<p class="text-secondary font-body-md text-body-md">
+            El usuario se compromete a no subir contenido ofensivo, información falsa o imágenes que vulneren la privacidad de vecinos particulares. La reiteración maliciosa de reportes inexistentes habilitará al Municipio de Morón a la inhabilitación del perfil vecinal.
+          </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl">
+<h4 class="font-title-md text-title-md text-primary mb-1">4. Georreferenciación Automática</h4>
+<p class="text-secondary font-body-md text-body-md">
+            Al capturar fotografías mediante la aplicación móvil, el usuario concede acceso al sensor GPS de su dispositivo para fijar las coordenadas exactas de la anomalía en el mapa catastral municipal.
+          </p>
+</div>
+</div>
+<!-- Modal Footer CTA -->
+<div class="pt-3">
+<button class="w-full py-3.5 bg-primary text-on-primary rounded-xl font-title-md text-title-md shadow-md active:scale-98 transition-transform" onclick="acceptTermsAndClose()" type="button">
+          Aceptar Términos y Continuar
+        </button>
+</div>
+</div>
+</div>
+<!-- PASSWORD RECOVERY MODAL -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm hidden items-center justify-center px-4" id="recovery-modal">
+<div class="bg-surface-container-lowest w-full max-w-sm rounded-3xl p-5 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+<div class="w-12 h-12 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined text-2xl">lock_reset</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Recuperar Acceso</h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Ingresá el correo con el que te diste de alta para enviarte un enlace seguro temporal.</p>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface" for="recovery-email">Correo Electrónico</label>
+<input class="w-full bg-surface-container-low text-on-surface py-3 px-3.5 rounded-xl font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none" id="recovery-email" placeholder="tu.correo@ejemplo.com" type="email"/>
+</div>
+<div class="flex gap-2 mt-2">
+<button class="flex-1 py-3 bg-surface-container text-on-surface font-title-md text-title-md rounded-xl" onclick="closeRecoveryModal()" type="button">Cancelar</button>
+<button class="flex-1 py-3 bg-primary text-on-primary font-title-md text-title-md rounded-xl shadow-sm" onclick="closeRecoveryModal()" type="button">Enviar Enlace</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchAuthMode(mode) {
+    const loginForm = document.getElementById('form-login');
+    const registerForm = document.getElementById('form-register');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+
+    if (mode === 'login') {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      
+      tabLogin.className = 'flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 bg-surface-container-lowest text-on-surface shadow-sm flex items-center justify-center gap-2';
+      tabRegister.className = 'flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 text-secondary flex items-center justify-center gap-2';
+    } else {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+
+      tabRegister.className = 'flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 bg-surface-container-lowest text-on-surface shadow-sm flex items-center justify-center gap-2';
+      tabLogin.className = 'flex-1 py-3 text-center rounded-lg font-title-md text-title-md transition-all duration-200 text-secondary flex items-center justify-center gap-2';
+    }
+  }
+
+  function togglePassVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      icon.textContent = 'visibility';
+    }
+  }
+
+  function toggleLegalModal(show) {
+    const modal = document.getElementById('legal-modal');
+    if (!modal) return;
+    if (show) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } else {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function acceptTermsAndClose() {
+    const checkbox = document.getElementById('terms-checkbox');
+    if (checkbox) checkbox.checked = true;
+    toggleLegalModal(false);
+  }
+
+  function openRecoveryModal() {
+    const modal = document.getElementById('recovery-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  function closeRecoveryModal() {
+    const modal = document.getElementById('recovery-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function activateInspectorMode() {
+    const emailInput = document.getElementById('login-email');
+    if (emailInput) {
+      emailInput.value = '@moron.gob.ar';
+      emailInput.focus();
+    }
+  }
+</script></main></body></html>

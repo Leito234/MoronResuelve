@@ -1,0 +1,32 @@
+/* Estilos específicos para la Mesa de Control y Gestión Municipal */
+
+.status-filter-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.status-filter-btn:active {
+  transform: scale(0.95);
+}
+
+.report-card {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.report-card.dismissing {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.modal-drawer {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-notification {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.gis-map-preview {
+  background-size: cover;
+  background-position: center;
+}

@@ -1,0 +1,31 @@
+/* Estilos específicos para la página Catálogo de 20 Incidencias Urbanas */
+
+.filter-chip {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.filter-chip.active {
+  background-color: var(--color-primary, #ac001e);
+  color: var(--color-on-primary, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.cat-card:active {
+  transform: scale(0.98);
+}
+
+.cat-number {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  user-select: none;
+}

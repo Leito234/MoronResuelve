@@ -1,0 +1,23 @@
+.header-container {
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+}
+
+.locality-selector {
+  transition: all 0.2s ease-in-out;
+}
+
+.locality-selector:hover {
+  background-color: var(--color-surface-container-highest, #e0e3e5);
+}
+
+.notification-badge {
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.profile-avatar {
+  transition: transform 0.2s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}

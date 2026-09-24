@@ -1,0 +1,64 @@
+/* Estilos específicos para la página de Nuevo Reporte de Incidencia */
+
+.category-chip {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.category-chip:active {
+  transform: scale(0.95);
+}
+
+.map-card-preview {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.map-floating-pin {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease;
+}
+
+.map-card-preview:hover .map-floating-pin {
+  transform: translateY(-4px) scale(1.08);
+}
+
+.photo-preview-card {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.photo-preview-card.deleting {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.urgency-pill {
+  transition: all 0.2s ease;
+}
+
+.urgency-pill.active-low {
+  background-color: var(--color-surface-container-highest, #e0e3e5);
+}
+
+.urgency-pill.active-mid {
+  background-color: var(--color-tertiary-fixed, #ffddb8);
+  color: var(--color-on-tertiary-fixed, #2a1700);
+}
+
+.urgency-pill.active-high {
+  background-color: var(--color-primary-fixed, #ffdad7);
+  color: var(--color-on-primary-fixed-variant, #930018);
+}
+
+.submit-btn {
+  box-shadow: 0 4px 14px rgba(217, 4, 41, 0.25);
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: var(--color-primary-container, #d90429);
+  box-shadow: 0 6px 18px rgba(217, 4, 41, 0.35);
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
