@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
 import type { UrgencyLevel } from '../types';
+import { LocationPickerMap } from '../components/Map/LocationPickerMap';
+import { MORON_LOCALITY_COORDS } from '../utils/geoUtils';
 import '../styles/NuevoReporte.css';
 
 export const NuevoReporte: React.FC = () => {
@@ -9,31 +11,26 @@ export const NuevoReporte: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { addIncident, user } = useIncidents();
 
-  // Category state
   const catFromUrl = searchParams.get('name') || searchParams.get('cat');
   const [category, setCategory] = useState<string>(catFromUrl || 'Bacheo y Asfalto');
   const [isCatalogDrawerOpen, setIsCatalogDrawerOpen] = useState(false);
 
-  // Address and Map state
   const [address, setAddress] = useState<string>('Belgrano y 9 de Julio, Morón Centro');
   const [locality, setLocality] = useState<string>('Morón Centro');
+  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: -34.6534, lng: -58.6198 });
 
-  // Description and char counter
   const [description, setDescription] = useState<string>(
     'Frente al colegio E.E.S.T N°6 hay un bache profundo que junta agua estancada e impide el paso peatonal seguro.'
   );
 
-  // Urgency
   const [urgency, setUrgency] = useState<UrgencyLevel>('Medio');
 
-  // Photo evidence
   const [photos, setPhotos] = useState<string[]>([
     'https://lh3.googleusercontent.com/aida-public/AB6AXuB2gsLqrlccO-_mEmxDk_jlHkoDtclKERJbaOBtdMw1gvY4KLimnaGxPfYi_3Gq8f96dXyMfozSnKhxRTEiTNfwgGgbYwdSuH7DhennHyy0FggmiqR0oS2yL2bK32Im8vGBkq0EjD8Y6f7fyPwkStZNphCpiAi_YIh6TtyNCSc6cDt74OAdJ96TxI2oliW_lOLTw2DCIgJg8lBbSrPeKaAZArjPOlAidVO84YxVDCaVLuCWDn2Th9MJ',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuCVTusek3eMn_sF2N57f2XglhFLEj0e5E348ALSTwCp8_l7GpuulCUvNzU1XCVj42JZ13X5ohrYJ_s6JB0mYj9nIyrPTpOTpCVSs08OOn7Rtf2zh51ttWQAi5csrSYEztXa-YIJ1quECTk-Td5JPwAcOGDwkRoc5JLRM2mCe4w1xlhDQE41bHMZN7ilNA9bunqmYHfn4kez1IwMvY4yb0v6Q92yTr_2E-ZydUgDOmarqLWxX5xhBpBY',
   ]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Submit and modal state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdTicketId, setCreatedTicketId] = useState<string | null>(null);
 
@@ -41,11 +38,10 @@ export const NuevoReporte: React.FC = () => {
   const handleSelectLocality = (loc: string) => {
     setLocality(loc);
     setAddress(`Av. Rivadavia y San Martín, ${loc}`);
-  };
-
-  const handleCenterGps = () => {
-    setAddress('Ubicación GPS: Almirante Brown 950, Morón');
-    setLocality('Morón Centro');
+    const locCoords = MORON_LOCALITY_COORDS[loc];
+    if (locCoords) {
+      setCoords({ lat: locCoords[0], lng: locCoords[1] });
+    }
   };
 
   const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +65,7 @@ export const NuevoReporte: React.FC = () => {
     setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
       alert('Por favor detallá brevemente la situación observada.');
@@ -78,7 +74,7 @@ export const NuevoReporte: React.FC = () => {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
       const areaMap: Record<string, 'vialidad' | 'alumbrado' | 'higiene' | 'espacios' | 'seguridad'> = {
         'Bacheo y Asfalto': 'vialidad',
         'Baches en calles': 'vialidad',
@@ -92,7 +88,7 @@ export const NuevoReporte: React.FC = () => {
         'Semáforo titilando': 'vialidad',
       };
 
-      const newInc = addIncident({
+      const newInc = await addIncident({
         title: category + ' en ' + (address.split(',')[0] || 'vía pública'),
         category,
         categorySlug: category.toLowerCase().replace(/\s+/g, '-'),
@@ -106,11 +102,17 @@ export const NuevoReporte: React.FC = () => {
         reporterEmail: user.email,
         images: photos,
         assignedCuadrilla: `Cuadrilla Móvil de ${locality}`,
+        lat: coords.lat,
+        lng: coords.lng,
       });
 
-      setIsSubmitting(false);
       setCreatedTicketId(newInc.id);
-    }, 900);
+    } catch (err) {
+      console.error('Error al enviar reporte:', err);
+      alert('Hubo un inconveniente al registrar el reclamo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleResetForm = () => {
@@ -122,8 +124,6 @@ export const NuevoReporte: React.FC = () => {
   return (
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
       <div className="max-w-2xl mx-auto w-full pb-10">
-        
-        {/* Top Header & Tracker */}
         <div className="px-margin pt-space-md flex flex-col gap-space-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-space-xs">
@@ -139,7 +139,6 @@ export const NuevoReporte: React.FC = () => {
             </span>
           </div>
 
-          {/* Segmented Tracker */}
           <div className="grid grid-cols-3 gap-space-xs w-full">
             <div className="h-1.5 rounded-full bg-primary transition-all duration-300"></div>
             <div className="h-1.5 rounded-full bg-surface-container-highest"></div>
@@ -157,8 +156,6 @@ export const NuevoReporte: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-space-lg px-margin mt-space-md">
-          
-          {/* 1. CATEGORÍA DEL REPORTE */}
           <section className="flex flex-col gap-space-sm">
             <div className="flex items-center justify-between">
               <label className="font-title-md text-title-md text-on-surface font-bold flex items-center gap-space-xs">
@@ -172,7 +169,6 @@ export const NuevoReporte: React.FC = () => {
               </span>
             </div>
 
-            {/* Quick Select Carousel */}
             <div className="flex gap-space-sm overflow-x-auto pb-space-xs pt-1 -mx-margin px-margin no-scrollbar snap-x">
               {[
                 { label: 'Baches en calles', icon: '🕳️' },
@@ -200,7 +196,6 @@ export const NuevoReporte: React.FC = () => {
               })}
             </div>
 
-            {/* Ver catálogo completo button */}
             <button
               type="button"
               onClick={() => setIsCatalogDrawerOpen(!isCatalogDrawerOpen)}
@@ -215,7 +210,6 @@ export const NuevoReporte: React.FC = () => {
               </span>
             </button>
 
-            {/* Expandable catalog drawer */}
             {isCatalogDrawerOpen && (
               <div className="flex flex-col gap-space-xs p-space-sm rounded-2xl bg-surface-container-lowest shadow-sm border border-surface-container-high animate-in fade-in">
                 <span className="font-label-sm text-label-sm text-secondary px-2">
@@ -250,7 +244,6 @@ export const NuevoReporte: React.FC = () => {
             )}
           </section>
 
-          {/* 2. UBICACIÓN DEL PROBLEMA */}
           <section className="flex flex-col gap-space-sm">
             <div className="flex items-center justify-between">
               <label className="font-title-md text-title-md text-on-surface font-bold flex items-center gap-space-xs">
@@ -264,56 +257,19 @@ export const NuevoReporte: React.FC = () => {
               </span>
             </div>
 
-            {/* Interactive Map Card Preview */}
-            <div className="relative w-full rounded-2xl overflow-hidden shadow-sm bg-surface-container-high h-44 flex flex-col justify-between p-space-sm map-card-preview border border-surface-container-high">
-              <div
-                className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform hover:scale-105 duration-700"
-                style={{
-                  backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPLEUC_G4pttdaDYkRLahVpXpOyFozBsaCNZDlrA60OEJ7t6VV14ZWV9btIOa0l9DpQCcQILHkRceuc0IPGlSUHAU3i5dyXqHrFF9y4l9GXfnUKAFz0-qxmXfvipQFR9ERjcHi6UIEg_KVHWgEAHjw2R4Z9fSw5pVEBpatdYemQyCQ6lDuTec9ccchYobuqLa-XUu-1yCjIo_YamhD42I7nMjkGj7c2B1fEccUZPXLT0z62ALJMF3_')`,
-                }}
-              ></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-black/30 pointer-events-none"></div>
+            <LocationPickerMap
+              initialLat={coords.lat}
+              initialLng={coords.lng}
+              locality={locality}
+              address={address}
+              onLocationChange={({ lat, lng, locality: detectedLoc }) => {
+                setCoords({ lat, lng });
+                setLocality(detectedLoc);
+                setAddress(`${detectedLoc} (Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)})`);
+              }}
+              className="h-56"
+            />
 
-              {/* Sticky Floating Pin in center */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 -translate-y-2">
-                <div className="relative flex flex-col items-center map-floating-pin">
-                  <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg">
-                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      location_on
-                    </span>
-                  </div>
-                  <div className="w-3 h-1.5 rounded-full bg-black/40 blur-xs mt-0.5"></div>
-                </div>
-              </div>
-
-              {/* Top Pill Tag */}
-              <div className="relative z-10 flex items-center justify-between w-full">
-                <span className="px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-md font-label-sm text-label-sm font-bold text-on-surface flex items-center gap-1 shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                  Geo-referencia activa
-                </span>
-                <span className="px-2.5 py-0.5 rounded-md bg-inverse-surface/75 text-inverse-on-surface font-label-sm text-label-sm">
-                  {locality}
-                </span>
-              </div>
-
-              {/* Map bottom quick action */}
-              <div className="relative z-10 flex items-center justify-between gap-2">
-                <span className="text-inverse-on-surface font-label-sm text-label-sm truncate max-w-[200px] drop-shadow-sm">
-                  {address}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCenterGps}
-                  className="px-3 py-1.5 rounded-xl bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary font-label-md text-label-md font-bold flex items-center gap-1 shadow-md transition-colors"
-                >
-                  <span className="material-symbols-outlined text-sm">my_location</span>
-                  GPS Actual
-                </button>
-              </div>
-            </div>
-
-            {/* Address Input and Selector */}
             <div className="flex flex-col gap-space-xs">
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3.5 text-secondary text-lg pointer-events-none">
@@ -337,7 +293,6 @@ export const NuevoReporte: React.FC = () => {
                 )}
               </div>
 
-              {/* Locality shortcuts */}
               <div className="flex items-center gap-space-xs overflow-x-auto no-scrollbar pt-1">
                 <span className="font-label-sm text-label-sm text-secondary whitespace-nowrap mr-1 font-bold">
                   Localidades:
@@ -356,7 +311,6 @@ export const NuevoReporte: React.FC = () => {
             </div>
           </section>
 
-          {/* 3. EVIDENCIA FOTOGRÁFICA */}
           <section className="flex flex-col gap-space-sm">
             <div className="flex items-center justify-between">
               <label className="font-title-md text-title-md text-on-surface font-bold flex items-center gap-space-xs">
@@ -370,7 +324,6 @@ export const NuevoReporte: React.FC = () => {
               </span>
             </div>
 
-            {/* Recommended notice banner */}
             <div className="flex items-center gap-space-sm p-space-sm rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed shadow-sm">
               <span className="material-symbols-outlined text-tertiary text-xl shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
                 lightbulb
@@ -380,7 +333,6 @@ export const NuevoReporte: React.FC = () => {
               </p>
             </div>
 
-            {/* Photo Grid */}
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-space-sm">
               {photos.map((src, index) => (
                 <div
@@ -411,7 +363,6 @@ export const NuevoReporte: React.FC = () => {
                 </div>
               ))}
 
-              {/* Add trigger */}
               {photos.length < 4 && (
                 <button
                   type="button"
@@ -429,7 +380,6 @@ export const NuevoReporte: React.FC = () => {
               )}
             </div>
 
-            {/* Hidden real file input */}
             <input
               type="file"
               accept="image/*"
@@ -438,7 +388,6 @@ export const NuevoReporte: React.FC = () => {
               className="hidden"
             />
 
-            {/* Quick Dual Buttons for capture */}
             <div className="grid grid-cols-2 gap-space-sm pt-1">
               <button
                 type="button"
@@ -459,7 +408,6 @@ export const NuevoReporte: React.FC = () => {
             </div>
           </section>
 
-          {/* 4. DESCRIPCIÓN DETALLADA */}
           <section className="flex flex-col gap-space-sm">
             <div className="flex items-center justify-between">
               <label htmlFor="reportDescription" className="font-title-md text-title-md text-on-surface font-bold flex items-center gap-space-xs">
@@ -489,7 +437,6 @@ export const NuevoReporte: React.FC = () => {
             </span>
           </section>
 
-          {/* 5. NIVEL DE URGENCIA / IMPACTO VIAL */}
           <section className="flex flex-col gap-space-sm">
             <div className="flex items-center justify-between">
               <label className="font-title-md text-title-md text-on-surface font-bold flex items-center gap-space-xs">
@@ -546,7 +493,6 @@ export const NuevoReporte: React.FC = () => {
             </div>
           </section>
 
-          {/* ACCIÓN FINAL Y CONFIRMACIÓN */}
           <div className="flex flex-col gap-space-sm pt-space-xs">
             <button
               type="submit"
@@ -559,7 +505,6 @@ export const NuevoReporte: React.FC = () => {
               <span>{isSubmitting ? 'Registrando en sistema Morón...' : 'Enviar reporte al Municipio'}</span>
             </button>
 
-            {/* Instant Tracking Guarantee Card */}
             <div className="p-space-sm rounded-2xl bg-surface-container-low flex items-start gap-space-sm border border-surface-container-high">
               <div className="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="material-symbols-outlined text-base font-bold">verified_user</span>
@@ -577,7 +522,6 @@ export const NuevoReporte: React.FC = () => {
 
         </form>
 
-        {/* Success Modal */}
         {createdTicketId && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in">
             <div className="w-full max-w-sm bg-surface-container-lowest rounded-3xl p-space-lg shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95">

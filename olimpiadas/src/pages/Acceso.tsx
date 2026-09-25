@@ -6,27 +6,27 @@ import '../styles/Acceso.css';
 
 export const Acceso: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useIncidents();
+  const { login, register } = useIncidents();
 
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
-  // Login form state
-  const [loginEmail, setLoginEmail] = useState<string>(user.email);
-  const [loginPassword, setLoginPassword] = useState<string>('••••••••••••');
+  const [loginEmail, setLoginEmail] = useState<string>('al_garcia@eest6.edu.ar');
+  const [loginPassword, setLoginPassword] = useState<string>('password123');
   const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
   const [rememberSession, setRememberSession] = useState<boolean>(true);
 
-  // Register form state
   const [regName, setRegName] = useState<string>('');
   const [regLastName, setRegLastName] = useState<string>('');
   const [regEmail, setRegEmail] = useState<string>('');
   const [regPhone, setRegPhone] = useState<string>('');
-  const [regUgc, setRegUgc] = useState<string>('');
+  const [regUgc, setRegUgc] = useState<string>('Morón Centro');
   const [regPassword, setRegPassword] = useState<string>('');
   const [regPasswordConfirm, setRegPasswordConfirm] = useState<string>('');
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
-  // Modals
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const [showLegalModal, setShowLegalModal] = useState<boolean>(false);
   const [showRecoveryModal, setShowRecoveryModal] = useState<boolean>(false);
   const [recoveryEmail, setRecoveryEmail] = useState<string>('');
@@ -37,62 +37,79 @@ export const Acceso: React.FC = () => {
     setTimeout(() => setStatusNotification(null), 3500);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail) {
-      alert('Ingresá tu correo electrónico.');
+    setAuthError(null);
+
+    if (!loginEmail || !loginPassword) {
+      setAuthError('Por favor ingresá tu correo electrónico y contraseña.');
       return;
     }
 
-    const isInspector = loginEmail.includes('@moron.gob.ar');
-    setUser(prev => ({
-      ...prev,
-      email: loginEmail,
-      role: isInspector ? 'inspector' : 'vecino',
-    }));
-
-    showToast(`Sesión iniciada con éxito como ${isInspector ? 'Inspector Municipal' : 'Vecino'}`);
-    setTimeout(() => {
-      navigate(isInspector ? '/gestion' : '/');
-    }, 800);
+    setIsSubmitting(true);
+    try {
+      const loggedUser = await login(loginEmail, loginPassword);
+      const isInspector = loggedUser.role === 'inspector';
+      showToast(`Sesión iniciada con éxito como ${isInspector ? 'Inspector Municipal' : 'Vecino'}`);
+      setTimeout(() => {
+        navigate(isInspector ? '/gestion' : '/');
+      }, 800);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al iniciar sesión. Verificá tus credenciales.';
+      setAuthError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleActivateInspectorMode = () => {
     setLoginEmail('operaciones@moron.gob.ar');
-    setUser(prev => ({
-      ...prev,
-      role: 'inspector',
-      email: 'operaciones@moron.gob.ar',
-    }));
-    showToast('Modo Personal Municipal / Inspector habilitado');
+    setLoginPassword('password123');
+    setAuthError(null);
+    showToast('Datos de Inspector cargados. Haz clic en "Ingresar".');
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regName || !regEmail) {
-      alert('Por favor completá los campos obligatorios.');
+    setAuthError(null);
+
+    if (!regName || !regEmail || !regPassword) {
+      setAuthError('Por favor completá todos los campos obligatorios.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setAuthError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    if (regPassword !== regPasswordConfirm) {
+      setAuthError('Las contraseñas no coinciden.');
       return;
     }
     if (!termsAccepted) {
-      alert('Debes aceptar los Términos y Condiciones del Municipio de Morón.');
+      setAuthError('Debes aceptar los Términos y Condiciones del Municipio de Morón.');
       return;
     }
 
-    setUser({
-      name: `${regName} ${regLastName}`.trim(),
-      email: regEmail,
-      phone: regPhone ? `+54 9 11 ${regPhone}` : '11-2345-6789',
-      locality: regUgc || 'Morón Centro',
-      level: 1,
-      points: 100,
-      isVerified: true,
-      role: 'vecino',
-    });
+    setIsSubmitting(true);
+    try {
+      await register({
+        nombre: `${regName} ${regLastName}`.trim(),
+        email: regEmail,
+        password: regPassword,
+        telefono: regPhone ? `+54 9 11 ${regPhone}` : undefined,
+        localidad: regUgc || 'Morón Centro',
+      });
 
-    showToast('¡Cuenta vecinal creada con éxito! Bienvenido a Morón Resuelve.');
-    setTimeout(() => {
-      navigate('/');
-    }, 1000);
+      showToast('¡Cuenta vecinal creada con éxito! Bienvenido a Morón Resuelve.');
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al registrar la cuenta.';
+      setAuthError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAcceptTermsAndClose = () => {
@@ -104,13 +121,11 @@ export const Acceso: React.FC = () => {
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
       <div className="max-w-xl mx-auto w-full pb-8">
         
-        {/* Top Civic Badge & Atmospheric Brand Glow */}
         <div className="relative overflow-hidden bg-surface-container-lowest px-4 pt-6 pb-8 shadow-sm rounded-b-3xl border-b border-surface-container-high/40">
           <div className="absolute -right-12 -top-16 w-52 h-52 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -left-10 top-24 w-40 h-40 bg-secondary-fixed/50 rounded-full blur-2xl pointer-events-none"></div>
           
           <div className="relative z-10 flex flex-col items-center text-center">
-            {/* Municipality Crest / Identity */}
             <div className="flex items-center justify-center w-20 h-20 bg-surface-container rounded-2xl shadow-inner mb-3 p-2 border border-surface-container-high">
               <img
                 alt="Escudo Oficial Municipio de Morón"
@@ -119,7 +134,6 @@ export const Acceso: React.FC = () => {
               />
             </div>
 
-            {/* Editorial Urgency Typography */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full mb-2">
               <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
               <span className="font-label-sm text-label-sm uppercase tracking-wider font-bold">
@@ -138,7 +152,6 @@ export const Acceso: React.FC = () => {
               Plataforma oficial de participación vecinal, seguimiento geolocalizado e intervención barrial inmediata.
             </p>
 
-            {/* Editorial Stats Strip */}
             <div className="grid grid-cols-3 gap-2 w-full mt-5 pt-4 bg-surface-container-low rounded-2xl p-3 border border-surface-container-high/40">
               <div className="flex flex-col items-center">
                 <span className="font-headline-md text-headline-md text-primary font-extrabold">94.2%</span>
@@ -162,7 +175,6 @@ export const Acceso: React.FC = () => {
           </div>
         </div>
 
-        {/* Segmented Tab Bar Switcher */}
         <div className="px-4 mt-5">
           <div className="bg-surface-container-high p-1 rounded-2xl flex items-stretch shadow-inner">
             <button
@@ -190,10 +202,7 @@ export const Acceso: React.FC = () => {
           </div>
         </div>
 
-        {/* Forms Section */}
         <div className="px-4 mt-4">
-          
-          {/* LOGIN FORM */}
           {authMode === 'login' && (
             <form
               onSubmit={handleLogin}
@@ -211,7 +220,13 @@ export const Acceso: React.FC = () => {
                 </p>
               </div>
 
-              {/* Field: Correo */}
+              {authError && (
+                <div className="p-3 bg-red-100 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-sm flex items-center gap-2">
+                  <span className="material-symbols-outlined text-lg text-red-600">error</span>
+                  <span>{authError}</span>
+                </div>
+              )}
+
               <div className="flex flex-col gap-1.5 mt-2">
                 <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="login-email">
                   Correo Electrónico
@@ -232,7 +247,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Field: Contraseña */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="login-password">
@@ -270,7 +284,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Checkbox Remember */}
               <label className="flex items-center gap-3 cursor-pointer py-1">
                 <input
                   type="checkbox"
@@ -283,16 +296,24 @@ export const Acceso: React.FC = () => {
                 </span>
               </label>
 
-              {/* Primary CTA */}
               <button
                 type="submit"
-                className="w-full py-4 mt-2 bg-primary-container text-on-primary rounded-2xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-primary active:scale-98 transition-all"
+                disabled={isSubmitting}
+                className="w-full py-4 mt-2 bg-primary-container text-on-primary rounded-2xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-primary active:scale-98 transition-all disabled:opacity-50"
               >
-                <span>Ingresar como Vecino</span>
-                <span className="material-symbols-outlined">arrow_forward</span>
+                {isSubmitting ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span>Validando credenciales...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Ingresar</span>
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </>
+                )}
               </button>
 
-              {/* Quick Divider */}
               <div className="relative flex py-2 items-center">
                 <div className="flex-grow h-px bg-surface-container-highest"></div>
                 <span className="flex-shrink mx-4 font-label-sm text-label-sm text-secondary uppercase font-bold">
@@ -301,7 +322,6 @@ export const Acceso: React.FC = () => {
                 <div className="flex-grow h-px bg-surface-container-highest"></div>
               </div>
 
-              {/* Inspector / Municipal Staff Access */}
               <button
                 type="button"
                 onClick={handleActivateInspectorMode}
@@ -327,7 +347,6 @@ export const Acceso: React.FC = () => {
             </form>
           )}
 
-          {/* REGISTER FORM */}
           {authMode === 'register' && (
             <form
               onSubmit={handleRegister}
@@ -348,7 +367,13 @@ export const Acceso: React.FC = () => {
                 </p>
               </div>
 
-              {/* Name & Last Name (2 Cols) */}
+              {authError && (
+                <div className="p-3 bg-red-100 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-sm flex items-center gap-2">
+                  <span className="material-symbols-outlined text-lg text-red-600">error</span>
+                  <span>{authError}</span>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3 mt-1">
                 <div className="flex flex-col gap-1.5">
                   <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="reg-name">
@@ -380,7 +405,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Field: Correo */}
               <div className="flex flex-col gap-1.5">
                 <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="reg-email">
                   Correo Electrónico
@@ -404,7 +428,6 @@ export const Acceso: React.FC = () => {
                 </span>
               </div>
 
-              {/* Field: Teléfono / WhatsApp */}
               <div className="flex flex-col gap-1.5">
                 <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="reg-phone">
                   Teléfono / WhatsApp de Contacto
@@ -424,7 +447,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Field: UGC o Localidad Selector */}
               <div className="flex flex-col gap-1.5">
                 <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="reg-ugc">
                   Tu Localidad / Barrio en Morón
@@ -452,7 +474,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password & Confirm */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="font-label-md text-label-md text-on-surface font-bold" htmlFor="reg-password">
@@ -482,7 +503,6 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Terms Checkbox */}
               <div className="p-3.5 bg-surface-container-low rounded-2xl flex flex-col gap-2 border border-surface-container-high">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
@@ -509,20 +529,28 @@ export const Acceso: React.FC = () => {
                 </div>
               </div>
 
-              {/* Primary Action */}
               <button
                 type="submit"
-                className="w-full py-4 mt-1 bg-primary-container text-on-primary rounded-2xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-primary active:scale-98 transition-all"
+                disabled={isSubmitting}
+                className="w-full py-4 mt-1 bg-primary-container text-on-primary rounded-2xl font-headline-md text-headline-md tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-primary active:scale-98 transition-all disabled:opacity-50"
               >
-                <span>Completar Registro Vecinal</span>
-                <span className="material-symbols-outlined">how_to_reg</span>
+                {isSubmitting ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span>Registrando cuenta...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Completar Registro Vecinal</span>
+                    <span className="material-symbols-outlined">how_to_reg</span>
+                  </>
+                )}
               </button>
             </form>
           )}
 
         </div>
 
-        {/* Trust & Municipal Transparency Strip */}
         <div className="px-4 mt-6">
           <div className="p-4 bg-surface-container rounded-3xl flex flex-col gap-3 border border-surface-container-high">
             <div className="flex items-start gap-3">
@@ -564,7 +592,6 @@ export const Acceso: React.FC = () => {
 
       </div>
 
-      {/* LEGAL TERMS & CONDITIONS MODAL (Drawer Style) */}
       {showLegalModal && (
         <div className="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end justify-center animate-in fade-in">
           <div className="bg-surface-container-lowest w-full max-w-lg max-h-[85vh] rounded-t-3xl p-6 flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
@@ -643,7 +670,6 @@ export const Acceso: React.FC = () => {
         </div>
       )}
 
-      {/* PASSWORD RECOVERY MODAL */}
       {showRecoveryModal && (
         <div className="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-center justify-center px-4 animate-in fade-in">
           <div className="bg-surface-container-lowest w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95">
@@ -694,7 +720,6 @@ export const Acceso: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Status Notification Toast */}
       {statusNotification && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-5 py-3 rounded-full shadow-2xl font-label-md text-label-md flex items-center gap-2 z-50 animate-in fade-in zoom-in-95">
           <span className="material-symbols-outlined text-tertiary-fixed text-lg">check_circle</span>

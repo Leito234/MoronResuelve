@@ -8,7 +8,6 @@ export const Inicio: React.FC = () => {
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [showFaqModal, setShowFaqModal] = useState<boolean>(false);
 
-  // Filter active and resolved incidents for user
   const activeIncident = incidents.find(
     i => i.status === 'pendiente' || i.status === 'proceso'
   ) || incidents[0];
@@ -36,8 +35,6 @@ export const Inicio: React.FC = () => {
   return (
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
       <div className="max-w-4xl mx-auto w-full px-space-md py-space-md space-y-space-lg">
-        
-        {/* Saludo Personalizado & Nivel Cívico */}
         <section className="flex items-center justify-between gap-space-sm bg-surface-container-lowest p-space-md rounded-2xl shadow-sm border border-surface-container-high/40">
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-1.5">
@@ -66,7 +63,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Banner Hero Cívico */}
         <section className="relative overflow-hidden rounded-2xl hero-banner-gradient p-space-lg text-on-primary shadow-md">
           <div className="absolute -right-8 -bottom-10 opacity-15 pointer-events-none">
             <span className="material-symbols-outlined hero-campaign-icon">campaign</span>
@@ -103,7 +99,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Métricas Rápidas Ciudadanas */}
         <section className="grid grid-cols-2 gap-space-sm">
           <div className="bg-surface-container-lowest p-space-md rounded-2xl flex items-center gap-3 shadow-sm border border-surface-container-high/40">
             <div className="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
@@ -136,7 +131,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Reclamo Activo con Línea de Tiempo */}
         {activeIncident && (
           <section className="space-y-space-sm">
             <div className="flex items-center justify-between">
@@ -184,7 +178,6 @@ export const Inicio: React.FC = () => {
                 </div>
               </div>
 
-              {/* Stepper / Línea de Tiempo Visual */}
               <div className="pt-2">
                 <div className="relative flex justify-between items-start">
                   <div className="absolute top-3.5 left-4 right-4 timeline-track -z-0">
@@ -194,7 +187,6 @@ export const Inicio: React.FC = () => {
                     ></div>
                   </div>
 
-                  {/* Paso 1: Recibido */}
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className="step-node rounded-full bg-primary-container text-on-primary flex items-center justify-center text-xs shadow-sm font-bold">
                       <span className="material-symbols-outlined text-sm">done</span>
@@ -207,7 +199,6 @@ export const Inicio: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Paso 2: Revisión */}
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs shadow-sm font-bold ${
                       (activeIncident.timeline?.currentStep || 1) >= 2
@@ -228,7 +219,6 @@ export const Inicio: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Paso 3: Cuadrilla */}
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs shadow-md font-bold ${
                       activeIncident.timeline?.currentStep === 3
@@ -253,7 +243,6 @@ export const Inicio: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Paso 4: Resuelto */}
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs font-semibold ${
                       activeIncident.timeline?.currentStep === 4
@@ -291,7 +280,6 @@ export const Inicio: React.FC = () => {
           </section>
         )}
 
-        {/* Historial Reciente Preview */}
         <section className="space-y-space-sm">
           <div className="flex items-center justify-between">
             <h3 className="font-title-lg text-title-lg text-on-surface">Últimos Casos Cerrados</h3>
@@ -339,7 +327,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Canales de Urgencia & Contacto Oficial */}
         <section className="bg-surface-container-low p-space-md rounded-2xl space-y-space-sm border border-surface-container-high/60">
           <div className="flex items-center gap-2 text-primary">
             <span className="material-symbols-outlined text-xl">fmd_bad</span>
@@ -376,7 +363,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Sección de Términos y Condiciones / Marco Legal Transparente (Acordeón interactivo) */}
         <section className="space-y-space-sm pt-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-secondary text-xl">gavel</span>
@@ -387,7 +373,6 @@ export const Inicio: React.FC = () => {
           </p>
 
           <div className="space-y-2">
-            {/* Item 1: Veracidad */}
             <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-surface-container-high/40 accordion-item">
               <button
                 className="w-full p-space-md flex items-center justify-between text-left text-on-surface accordion-trigger"
@@ -419,7 +404,6 @@ export const Inicio: React.FC = () => {
               )}
             </div>
 
-            {/* Item 2: Privacidad */}
             <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-surface-container-high/40 accordion-item">
               <button
                 className="w-full p-space-md flex items-center justify-between text-left text-on-surface accordion-trigger"
@@ -448,7 +432,6 @@ export const Inicio: React.FC = () => {
               )}
             </div>
 
-            {/* Item 3: Tiempos y SLA */}
             <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-surface-container-high/40 accordion-item">
               <button
                 className="w-full p-space-md flex items-center justify-between text-left text-on-surface accordion-trigger"
@@ -492,7 +475,6 @@ export const Inicio: React.FC = () => {
               )}
             </div>
 
-            {/* Item 4: Protocolo Urgencias */}
             <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-surface-container-high/40 accordion-item">
               <button
                 className="w-full p-space-md flex items-center justify-between text-left text-on-surface accordion-trigger"
@@ -520,7 +502,6 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        {/* Pie de Apoyo Ciudadano / FAQ */}
         <section className="bg-surface-container-high/60 p-space-md rounded-2xl text-center space-y-2 border border-surface-container-highest">
           <span className="material-symbols-outlined text-3xl text-secondary">help_outline</span>
           <h4 className="font-title-md text-title-md text-on-surface">¿Tenés dudas sobre tu gestión barrial?</h4>
@@ -540,7 +521,6 @@ export const Inicio: React.FC = () => {
 
       </div>
 
-      {/* FAQ Modal */}
       {showFaqModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">

@@ -1,22 +1,31 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useIncidents } from '../context/useIncidents';
-import type { Incident } from '../types';
+import type { Incident, UserProfile } from '../types';
+import { ReportsMap } from '../components/Map/ReportsMap';
+import { MiniIncidentMap } from '../components/Map/MiniIncidentMap';
+import { usersApi } from '../services/api';
 import '../styles/Gestion.css';
 
 export const Gestion: React.FC = () => {
-  const { incidents, updateIncidentStatus, dismissIncident, refreshData } = useIncidents();
+  const { incidents, user, updateIncidentStatus, dismissIncident, refreshData } = useIncidents();
+  const isInspector = user.role === 'inspector';
 
-  // Search & Filter
+  const [activeTab, setActiveTab] = useState<'mesa' | 'inspectores'>('mesa');
+  const [viewMode, setViewMode] = useState<'lista' | 'mapa'>('lista');
+
+  const [usersList, setUsersList] = useState<UserProfile[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'vecino' | 'inspector'>('all');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [areaFilter, setAreaFilter] = useState<string>('all');
 
-  // Modal inspection drawer
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [inspectorNotes, setInspectorNotes] = useState<string>('');
   const [selectedCuadrilla, setSelectedCuadrilla] = useState<string>('Obras Públicas y Bacheo');
 
-  // Refresh & Toast
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -36,7 +45,61 @@ export const Gestion: React.FC = () => {
     }, 600);
   };
 
-  // Metrics calculation
+  useEffect(() => {
+    if (activeTab === 'inspectores' && isInspector) {
+      let isMounted = true;
+      usersApi.getAll()
+        .then(data => {
+          if (isMounted) {
+            setUsersList(data);
+            setIsLoadingUsers(false);
+          }
+        })
+        .catch((err: unknown) => {
+          console.warn('Cargando lista local de usuarios:', err);
+          if (isMounted) {
+            setUsersList([
+              { id: 1, name: 'Juan García', email: 'al_garcia@eest6.edu.ar', phone: '11-2345-6789', locality: 'Castelar Sur', level: 3, points: 850, isVerified: true, role: 'vecino' },
+              { id: 2, name: 'Operaciones Municipales Morón', email: 'operaciones@moron.gob.ar', phone: '11-4489-7777', locality: 'Morón Centro', level: 10, points: 5000, isVerified: true, role: 'inspector' },
+              { id: 3, name: 'Mariana Rossi', email: 'm.rossi@gmail.com', phone: '11-5555-1234', locality: 'Castelar Sur', level: 2, points: 420, isVerified: true, role: 'vecino' },
+              { id: 4, name: 'Carlos Domínguez', email: 'carlos.d@moron.gob.ar', phone: '11-4444-9876', locality: 'Morón Sur', level: 5, points: 1500, isVerified: true, role: 'inspector' },
+            ]);
+            setIsLoadingUsers(false);
+          }
+        });
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [activeTab, isInspector]);
+
+  const handleToggleUserRole = async (targetUser: UserProfile) => {
+    if (!isInspector) {
+      showToast('Acceso denegado: solo inspectores pueden modificar roles');
+      return;
+    }
+    const nextRole = targetUser.role === 'inspector' ? 'vecino' : 'inspector';
+    try {
+      if (targetUser.id) {
+        await usersApi.updateRole(targetUser.id, nextRole);
+      }
+      setUsersList(prev => prev.map(u => u.email === targetUser.email ? { ...u, role: nextRole } : u));
+      showToast(`Rol de ${targetUser.name} actualizado a ${nextRole === 'inspector' ? 'Inspector Municipal' : 'Vecino'}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al actualizar rol';
+      showToast(msg);
+    }
+  };
+
+  const filteredUsers = useMemo(() => {
+    const q = userSearchQuery.toLowerCase().trim();
+    return usersList.filter(u => {
+      const matchRole = userRoleFilter === 'all' || u.role === userRoleFilter;
+      const matchSearch = q === '' || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.locality.toLowerCase().includes(q);
+      return matchRole && matchSearch;
+    });
+  }, [usersList, userRoleFilter, userSearchQuery]);
+
   const pendingCount = incidents.filter(i => i.status === 'pendiente').length;
   const inProcessCount = incidents.filter(i => i.status === 'proceso').length;
   const resolvedCount = incidents.filter(i => i.status === 'resuelto').length;
@@ -70,6 +133,10 @@ export const Gestion: React.FC = () => {
   };
 
   const handleDispatchOrder = () => {
+    if (!isInspector) {
+      showToast('Acceso restringido: requiere rol de Inspector Municipal');
+      return;
+    }
     if (!selectedIncident) return;
     updateIncidentStatus(
       selectedIncident.id,
@@ -82,12 +149,20 @@ export const Gestion: React.FC = () => {
   };
 
   const handleMarkResolved = (id: string) => {
+    if (!isInspector) {
+      showToast('Acceso restringido: solo inspectores pueden marcar resoluciones');
+      return;
+    }
     updateIncidentStatus(id, 'resuelto');
     showToast(`Reporte #${id} marcado como Resuelto`);
     if (selectedIncident?.id === id) setSelectedIncident(null);
   };
 
   const handleDismiss = (id: string) => {
+    if (!isInspector) {
+      showToast('Acceso restringido: solo inspectores pueden desestimar reportes');
+      return;
+    }
     dismissIncident(id);
     showToast(`Reporte #${id} desestimado / archivado`);
   };
@@ -95,8 +170,6 @@ export const Gestion: React.FC = () => {
   return (
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
       <div className="max-w-4xl mx-auto w-full pb-10">
-        
-        {/* Status & Quick Switch Header */}
         <section className="px-space-md pt-space-md">
           <div className="bg-inverse-surface rounded-2xl p-space-md shadow-md text-inverse-on-surface relative overflow-hidden border border-surface-container-high/20">
             <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
@@ -105,7 +178,7 @@ export const Gestion: React.FC = () => {
               <div className="flex items-center gap-1.5 bg-surface-container-lowest/15 px-3 py-1 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-ping"></span>
                 <span className="font-label-sm text-label-sm text-tertiary-fixed tracking-wider uppercase font-bold">
-                  Operaciones Urbanas Morón
+                  {isInspector ? 'Mesa de Control • Inspector Municipal' : 'Consulta Ciudadana • Municipio de Morón'}
                 </span>
               </div>
               
@@ -124,25 +197,71 @@ export const Gestion: React.FC = () => {
             <div className="flex items-baseline justify-between relative z-10">
               <div>
                 <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-primary font-bold">
-                  Mesa de Control
+                  {activeTab === 'mesa' ? 'Mesa de Control' : 'Administración de Inspectores'}
                 </h1>
                 <p className="font-body-md text-body-md text-surface-dim mt-0.5">
-                  Supervisión operativa y asignación de cuadrillas
+                  {activeTab === 'mesa'
+                    ? (isInspector ? 'Supervisión operativa, geolocalización y asignación de cuadrillas' : 'Auditoría ciudadana y monitoreo barrial de reportes')
+                    : 'Control de roles y designación de cuentas oficiales'}
                 </p>
               </div>
               <div className="bg-primary px-3 py-1.5 rounded-xl text-center shrink-0">
                 <span className="font-label-sm text-label-sm block text-on-primary opacity-80">
-                  SLA Morón
+                  {isInspector ? 'Rol Activo' : 'SLA Morón'}
                 </span>
-                <span className="font-title-md text-title-md font-bold text-on-primary">
-                  94.2%
+                <span className="font-title-md text-title-md font-bold text-on-primary capitalize">
+                  {isInspector ? 'Inspector' : '94.2%'}
                 </span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Key Metrics Row */}
+        {!isInspector && (
+          <div className="mx-space-md mt-space-sm p-space-sm bg-surface-container-low border border-primary/20 rounded-2xl flex items-start gap-3 shadow-sm">
+            <span className="material-symbols-outlined text-primary text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>
+              info
+            </span>
+            <div className="text-xs">
+              <span className="font-bold text-on-surface block font-title-md">
+                Modo Ciudadano • Vista de Auditoría
+              </span>
+              <span className="text-secondary">
+                Estás visualizando los reclamos y el mapa en modo vecino. Las operaciones de despacho a cuadrilla y resoluciones oficiales están reservadas al personal de Inspección Municipal.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {isInspector && (
+          <section className="px-space-md mt-space-sm flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('mesa')}
+              className={`px-4 py-2 rounded-2xl font-title-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm ${
+                activeTab === 'mesa'
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container text-secondary hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">dashboard</span>
+              <span>Reclamos Urbanos</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('inspectores')}
+              className={`px-4 py-2 rounded-2xl font-title-md text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm ${
+                activeTab === 'inspectores'
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container text-secondary hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">shield_person</span>
+              <span>Gestión de Inspectores</span>
+            </button>
+          </section>
+        )}
+
         <section className="mt-space-md px-space-md">
           <div className="flex items-center justify-between mb-space-xs">
             <span className="font-label-md text-label-md text-secondary uppercase tracking-wider font-bold">
@@ -154,7 +273,6 @@ export const Gestion: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
-            {/* Pendientes */}
             <div className="bg-tertiary-fixed/30 p-space-sm rounded-2xl shadow-sm flex flex-col justify-between border border-tertiary-fixed/40">
               <div className="flex items-center justify-between">
                 <span className="font-label-sm text-label-sm text-on-tertiary-fixed font-bold uppercase">
@@ -178,7 +296,6 @@ export const Gestion: React.FC = () => {
               </div>
             </div>
 
-            {/* En Proceso */}
             <div className="bg-secondary-fixed/40 p-space-sm rounded-2xl shadow-sm flex flex-col justify-between border border-secondary-fixed/50">
               <div className="flex items-center justify-between">
                 <span className="font-label-sm text-label-sm text-on-secondary-fixed font-bold uppercase">
@@ -202,7 +319,6 @@ export const Gestion: React.FC = () => {
               </div>
             </div>
 
-            {/* Resueltos */}
             <div className="bg-surface-container-lowest p-space-sm rounded-2xl shadow-sm flex items-center gap-space-sm border border-surface-container-high/50">
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -224,7 +340,6 @@ export const Gestion: React.FC = () => {
               </div>
             </div>
 
-            {/* Desestimados */}
             <div className="bg-surface-container-lowest p-space-sm rounded-2xl shadow-sm flex items-center gap-space-sm border border-surface-container-high/50">
               <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
                 <span className="material-symbols-outlined text-lg">cancel</span>
@@ -246,9 +361,7 @@ export const Gestion: React.FC = () => {
           </div>
         </section>
 
-        {/* Search & Filter Controls */}
         <section className="mt-space-md px-space-md">
-          {/* Live Search Bar */}
           <div className="relative w-full">
             <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-lg">
               search
@@ -270,7 +383,6 @@ export const Gestion: React.FC = () => {
             )}
           </div>
 
-          {/* Status Filters (Pills) */}
           <div className="flex items-center gap-1.5 overflow-x-auto py-2 mt-2 no-scrollbar">
             {[
               { id: 'all', label: `Todos (${totalCount})` },
@@ -293,7 +405,6 @@ export const Gestion: React.FC = () => {
             ))}
           </div>
 
-          {/* Category Filter Bar */}
           <div className="flex items-center gap-2 overflow-x-auto pt-1 pb-2 no-scrollbar">
             <span className="font-label-sm text-label-sm text-secondary shrink-0 font-bold">ÁREA:</span>
             {[
@@ -320,8 +431,57 @@ export const Gestion: React.FC = () => {
           </div>
         </section>
 
-        {/* Incident Reports Feed */}
-        <section className="mt-space-sm px-space-md space-y-space-sm">
+        {activeTab === 'mesa' ? (
+          <>
+            <section className="mt-space-md px-space-md flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-primary text-xl">map</span>
+                <h2 className="font-title-lg text-title-lg text-on-surface font-bold">
+                  {viewMode === 'mapa' ? 'Mapa de Reportes en Morón' : 'Listado de Reclamos'}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-1 bg-surface-container p-1 rounded-2xl border border-surface-container-high shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('lista')}
+                  className={`px-3 py-1.5 rounded-xl font-label-md text-xs font-bold flex items-center gap-1.5 transition-all ${
+                    viewMode === 'lista'
+                      ? 'bg-surface-container-lowest text-primary shadow-sm'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">format_list_bulleted</span>
+                  <span>Lista ({filteredIncidents.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('mapa')}
+                  className={`px-3 py-1.5 rounded-xl font-label-md text-xs font-bold flex items-center gap-1.5 transition-all ${
+                    viewMode === 'mapa'
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">location_on</span>
+                  <span>Mapa</span>
+                </button>
+              </div>
+            </section>
+
+            {viewMode === 'mapa' && (
+              <section className="mt-space-sm px-space-md animate-in fade-in">
+                <ReportsMap
+                  incidents={filteredIncidents}
+                  onSelectIncident={(incident) => openInspectionModal(incident)}
+                  selectedIncidentId={selectedIncident?.id}
+                  className="h-[540px]"
+                />
+              </section>
+            )}
+
+            {viewMode === 'lista' && (
+              <section className="mt-space-sm px-space-md space-y-space-sm animate-in fade-in">
           {filteredIncidents.length > 0 ? (
             filteredIncidents.map((incident) => {
               const isPending = incident.status === 'pendiente';
@@ -409,7 +569,6 @@ export const Gestion: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Cuadrilla inline note if already assigned */}
                   {incident.assignedCuadrilla && (
                     <div className="bg-surface-container-low p-2.5 rounded-xl flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
@@ -430,54 +589,65 @@ export const Gestion: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Actions */}
                   <div className="pt-2 flex items-center gap-2">
-                    {isPending && (
-                      <button
-                        onClick={() => openInspectionModal(incident)}
-                        className="flex-1 h-10 bg-primary text-on-primary rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-primary-container"
-                      >
-                        <span className="material-symbols-outlined text-lg">check_circle</span>
-                        <span>Aprobar e Iniciar Cuadrilla</span>
-                      </button>
-                    )}
-
-                    {isInProcess && (
+                    {isInspector ? (
                       <>
-                        <button
-                          onClick={() => handleMarkResolved(incident.id)}
-                          className="flex-1 h-10 bg-emerald-600 text-white rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-emerald-700"
-                        >
-                          <span className="material-symbols-outlined text-lg">done_all</span>
-                          <span>Completar y Cerrar</span>
-                        </button>
-                        <button
-                          onClick={() => openInspectionModal(incident)}
-                          className="h-10 px-3 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1"
-                          title="Ver Ficha Técnica"
-                        >
-                          <span className="material-symbols-outlined text-base">visibility</span>
-                        </button>
-                      </>
-                    )}
+                        {isPending && (
+                          <button
+                            onClick={() => openInspectionModal(incident)}
+                            className="flex-1 h-10 bg-primary text-on-primary rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-primary-container"
+                          >
+                            <span className="material-symbols-outlined text-lg">check_circle</span>
+                            <span>Aprobar e Iniciar Cuadrilla</span>
+                          </button>
+                        )}
 
-                    {isResolved && (
+                        {isInProcess && (
+                          <>
+                            <button
+                              onClick={() => handleMarkResolved(incident.id)}
+                              className="flex-1 h-10 bg-emerald-600 text-white rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-emerald-700"
+                            >
+                              <span className="material-symbols-outlined text-lg">done_all</span>
+                              <span>Completar y Cerrar</span>
+                            </button>
+                            <button
+                              onClick={() => openInspectionModal(incident)}
+                              className="h-10 px-3 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1"
+                              title="Ver Ficha Técnica"
+                            >
+                              <span className="material-symbols-outlined text-base">visibility</span>
+                            </button>
+                          </>
+                        )}
+
+                        {isResolved && (
+                          <button
+                            onClick={() => openInspectionModal(incident)}
+                            className="flex-1 h-10 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1.5 hover:bg-surface-container-highest"
+                          >
+                            <span className="material-symbols-outlined text-base">description</span>
+                            <span>Ver Ficha Resuelta</span>
+                          </button>
+                        )}
+
+                        {incident.status !== 'desestimado' && (
+                          <button
+                            onClick={() => handleDismiss(incident.id)}
+                            className="h-10 px-3 bg-error-container text-on-error-container rounded-xl font-title-md text-body-md flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-error/20"
+                            title="Rechazar o marcar duplicado"
+                          >
+                            <span className="material-symbols-outlined text-lg">close</span>
+                          </button>
+                        )}
+                      </>
+                    ) : (
                       <button
                         onClick={() => openInspectionModal(incident)}
-                        className="flex-1 h-10 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1.5 hover:bg-surface-container-highest"
+                        className="flex-1 h-10 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
                       >
-                        <span className="material-symbols-outlined text-base">description</span>
-                        <span>Ver Ficha Resuelta</span>
-                      </button>
-                    )}
-
-                    {incident.status !== 'desestimado' && (
-                      <button
-                        onClick={() => handleDismiss(incident.id)}
-                        className="h-10 px-3 bg-error-container text-on-error-container rounded-xl font-title-md text-body-md flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-error/20"
-                        title="Rechazar o marcar duplicado"
-                      >
-                        <span className="material-symbols-outlined text-lg">close</span>
+                        <span className="material-symbols-outlined text-lg text-primary">visibility</span>
+                        <span>Ver Ficha y Geolocalización</span>
                       </button>
                     )}
                   </div>
@@ -498,15 +668,13 @@ export const Gestion: React.FC = () => {
             </div>
           )}
         </section>
+      )}
+    </>
+  ) : null}
 
-      </div>
-
-      {/* Expanded Modal / Bottom Drawer for Inspection & Cuadrilla Assignment */}
       {selectedIncident && (
         <div className="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm flex items-end justify-center p-0 transition-opacity animate-in fade-in">
           <div className="bg-surface w-full max-w-lg rounded-t-3xl p-space-lg max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl relative animate-in slide-in-from-bottom duration-300 border-t border-surface-container-high">
-            
-            {/* Drawer Handle & Header */}
             <div className="flex flex-col items-center">
               <div
                 className="w-12 h-1.5 bg-outline-variant/60 rounded-full mb-3 cursor-pointer"
@@ -530,7 +698,6 @@ export const Gestion: React.FC = () => {
               </div>
             </div>
 
-            {/* Title & Loc */}
             <div>
               <h3 className="font-headline-md text-headline-md text-on-surface">
                 {selectedIncident.title}
@@ -541,21 +708,8 @@ export const Gestion: React.FC = () => {
               </p>
             </div>
 
-            {/* Mini Map Component (GIS Preview Moron) */}
-            <div className="w-full h-36 rounded-2xl overflow-hidden relative shadow-inner border border-surface-container-high">
-              <div className="absolute top-2 left-2 z-10 bg-surface/90 backdrop-blur px-2.5 py-1 rounded-full text-xs font-title-md text-on-surface shadow flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                Geolocalización Confirmada
-              </div>
-              <div
-                className="absolute inset-0 gis-map-preview"
-                style={{
-                  backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAyT-YTIFMT4tU6F0N2TREEMyNWka9RLFa8lGhw_mo0kAVZDpLMvPiDoHecTwA5dnlk24RSeyfnkrurBxttyLSrHr_TcsK6bMDdOcULRaQtih1ZFLMil9mlCQFe4WkRdBWmgwYMcor2IUzkWdptBO9yM4FbCwwHW-F0HRvx9xakHCrPRs5qcR9OXCr6NWpZx8RQl9TTf1MCvozvGCChg8oBUeXOpevKLI_vQNvOi4XXrDt0D75SEDlm')`,
-                }}
-              ></div>
-            </div>
+            <MiniIncidentMap incident={selectedIncident} className="w-full h-40" />
 
-            {/* Citizen Info Card */}
             <div className="bg-surface-container-lowest p-space-sm rounded-2xl flex items-center justify-between shadow-sm border border-surface-container-high/60">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center">
@@ -575,7 +729,6 @@ export const Gestion: React.FC = () => {
               </span>
             </div>
 
-            {/* Inspector Field Notes */}
             <div className="space-y-1.5">
               <label className="font-label-md text-label-md text-secondary uppercase block font-bold">
                 Notas y Observaciones del Inspector
@@ -588,7 +741,6 @@ export const Gestion: React.FC = () => {
               />
             </div>
 
-            {/* Cuadrilla Selector */}
             <div className="space-y-1.5">
               <label className="font-label-md text-label-md text-secondary uppercase block font-bold">
                 Cuadrilla Responsable Asignada
@@ -647,22 +799,154 @@ export const Gestion: React.FC = () => {
               </div>
             </div>
 
-            {/* Action Confirmation Buttons */}
             <div className="pt-2 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleDispatchOrder}
-                className="flex-1 h-12 bg-primary text-on-primary rounded-xl font-title-md text-body-lg font-bold flex items-center justify-center gap-2 shadow-md hover:bg-primary-container active:scale-95 transition-all"
-              >
-                <span className="material-symbols-outlined">send_and_archive</span>
-                Despachar Orden de Trabajo
-              </button>
+              {isInspector ? (
+                <button
+                  type="button"
+                  onClick={handleDispatchOrder}
+                  className="flex-1 h-12 bg-primary text-on-primary rounded-xl font-title-md text-body-lg font-bold flex items-center justify-center gap-2 shadow-md hover:bg-primary-container active:scale-95 transition-all"
+                >
+                  <span className="material-symbols-outlined">send_and_archive</span>
+                  Despachar Orden de Trabajo
+                </button>
+              ) : (
+                <div className="flex-1 p-3 bg-surface-container rounded-xl text-center text-xs text-secondary font-medium flex items-center justify-center gap-2 border border-surface-container-high">
+                  <span className="material-symbols-outlined text-base text-primary">lock</span>
+                  <span>El despacho operativo de cuadrillas requiere rol Inspector Municipal</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Toast Notification */}
+      {activeTab === 'inspectores' && isInspector && (
+        <section className="px-space-md mt-space-md space-y-space-md animate-in fade-in">
+          <div className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm border border-surface-container-high space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-title-lg text-title-lg text-on-surface font-bold">
+                  Control de Cuentas e Inspectores
+                </h2>
+                <p className="font-body-md text-secondary text-xs mt-0.5">
+                  Designación de permisos para personal operativo de la Municipalidad de Morón.
+                </p>
+              </div>
+              <span className="bg-primary/10 text-primary font-bold text-xs px-2.5 py-1 rounded-full">
+                {usersList.filter(u => u.role === 'inspector').length} inspectores activos
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-base">
+                  search
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar usuario por nombre o email..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-surface-container-low rounded-xl text-xs font-body-md border border-surface-container-high focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-1">
+                {(['all', 'inspector', 'vecino'] as const).map(role => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setUserRoleFilter(role)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      userRoleFilter === role
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'bg-surface-container text-secondary hover:text-on-surface'
+                    }`}
+                  >
+                    {role === 'all' ? 'Todos' : role === 'inspector' ? 'Inspectores' : 'Vecinos'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {isLoadingUsers ? (
+              <div className="p-8 text-center text-secondary">
+                <span className="material-symbols-outlined animate-spin text-2xl text-primary">progress_activity</span>
+                <p className="text-xs mt-2">Cargando cuentas...</p>
+              </div>
+            ) : filteredUsers.length > 0 ? (
+              <div className="divide-y divide-surface-container-high/60 pt-2">
+                {filteredUsers.map((u) => {
+                  const isUserInspector = u.role === 'inspector';
+                  const isCurrentUser = u.email === user.email;
+
+                  return (
+                    <div key={u.email} className="py-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                          isUserInspector
+                            ? 'bg-inverse-surface text-inverse-on-surface ring-2 ring-primary/40'
+                            : 'bg-surface-container text-secondary'
+                        }`}>
+                          <span className="material-symbols-outlined text-lg">
+                            {isUserInspector ? 'shield_person' : 'person'}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-title-md text-sm font-bold text-on-surface truncate">
+                              {u.name}
+                            </p>
+                            {isCurrentUser && (
+                              <span className="bg-primary-fixed text-on-primary-fixed text-[10px] font-bold px-1.5 py-0.2 rounded">
+                                Vos
+                              </span>
+                            )}
+                          </div>
+                          <p className="font-body-md text-xs text-secondary truncate">
+                            {u.email} • {u.locality}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase ${
+                          isUserInspector
+                            ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed'
+                            : 'bg-surface-container text-secondary'
+                        }`}>
+                          {isUserInspector ? 'Inspector' : 'Vecino'}
+                        </span>
+
+                        <button
+                          type="button"
+                          disabled={isCurrentUser}
+                          onClick={() => handleToggleUserRole(u)}
+                          className={`px-3 py-1 rounded-xl text-xs font-title-md font-bold transition-all shadow-sm ${
+                            isUserInspector
+                              ? 'bg-error-container text-on-error-container hover:bg-error/20'
+                              : 'bg-primary text-on-primary hover:bg-primary-container'
+                          } disabled:opacity-40 disabled:cursor-not-allowed`}
+                          title={isCurrentUser ? 'No podés revocar tu propio rol' : ''}
+                        >
+                          {isUserInspector ? 'Revocar Inspector' : 'Asignar Inspector'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-6 text-center text-secondary text-xs">
+                No se encontraron cuentas con los filtros seleccionados.
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      </div>
+
       {toastMessage && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-5 py-3 rounded-full shadow-2xl font-label-md text-label-md flex items-center gap-2 z-50 animate-in fade-in zoom-in-95">
           <span className="material-symbols-outlined text-tertiary-fixed text-lg">check_circle</span>

@@ -5,7 +5,7 @@ import { LOCALITIES } from '../data/mockData';
 import '../styles/Header.css';
 
 export const Header: React.FC = () => {
-  const { user, selectedLocality, setSelectedLocality, toggleUserRole } = useIncidents();
+  const { user, selectedLocality, setSelectedLocality } = useIncidents();
   const [showLocalityMenu, setShowLocalityMenu] = useState(false);
   const [showNotificationToast, setShowNotificationToast] = useState(false);
   const location = useLocation();
@@ -20,7 +20,6 @@ export const Header: React.FC = () => {
   return (
     <header className="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl header-container">
       <div className="h-16 px-space-md max-w-7xl mx-auto flex items-center justify-between gap-space-sm">
-        {/* Left branding & Locality selector */}
         <div className="flex items-center gap-space-sm">
           <Link to="/" className="flex flex-col hover:opacity-90 transition-opacity">
             <span className="font-headline-md text-headline-md text-primary leading-none tracking-tight">MORÓN</span>
@@ -29,7 +28,6 @@ export const Header: React.FC = () => {
           
           <div className="h-6 w-px bg-outline-variant/40 ml-1"></div>
           
-          {/* Locality dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowLocalityMenu(!showLocalityMenu)}
@@ -67,7 +65,6 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-6">
           <Link
             to="/"
@@ -105,9 +102,7 @@ export const Header: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Right side icons & role switcher */}
         <div className="flex items-center gap-space-sm">
-          {/* Notifications button */}
           <button
             aria-label="Notificaciones activas"
             onClick={() => {
@@ -120,23 +115,25 @@ export const Header: React.FC = () => {
             <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary-container notification-badge animate-pulse"></span>
           </button>
 
-          {/* Quick Role switch badge */}
-          <button
-            onClick={toggleUserRole}
+          <Link
+            to="/acceso"
             className={`px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 transition-all ${
               user.role === 'inspector'
-                ? 'bg-inverse-surface text-inverse-on-surface hover:bg-black'
-                : 'bg-primary-fixed text-on-primary-fixed hover:bg-primary hover:text-on-primary'
+                ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed shadow-sm'
+                : 'bg-primary-fixed text-on-primary-fixed hover:bg-primary-fixed-dim'
             }`}
-            title="Hacé clic para cambiar entre rol Vecino y rol Inspector Municipal"
+            title={
+              user.role === 'inspector'
+                ? 'Sesión con rol oficial: Inspector Municipal'
+                : 'Sesión activa como Vecino. Para rol Inspector iniciá sesión con cuenta oficial.'
+            }
           >
             <span className="material-symbols-outlined text-xs">
               {user.role === 'inspector' ? 'shield_person' : 'person'}
             </span>
-            <span className="capitalize">{user.role}</span>
-          </button>
+            <span className="capitalize">{user.role === 'inspector' ? 'Inspector' : 'Vecino'}</span>
+          </Link>
 
-          {/* User Profile Avatar / Link */}
           <Link
             to="/acceso"
             className="relative flex items-center profile-avatar"
@@ -151,7 +148,6 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Notifications Toast */}
       {showNotificationToast && (
         <div className="absolute top-18 right-4 bg-inverse-surface text-inverse-on-surface px-4 py-2 rounded-2xl shadow-xl font-body-md text-xs flex items-center gap-2 z-50 animate-in fade-in slide-in-from-top-2">
           <span className="material-symbols-outlined text-tertiary-fixed text-base">notifications_active</span>

@@ -5,13 +5,29 @@ export interface IncidentContextType {
   incidents: Incident[];
   user: UserProfile;
   selectedLocality: string;
+  isLoading: boolean;
+  error: string | null;
   setSelectedLocality: (loc: string) => void;
   setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
-  addIncident: (newIncident: Omit<Incident, 'id' | 'timeAgo'>) => Incident;
-  updateIncidentStatus: (id: string, status: IncidentStatus, assignedCuadrilla?: string, notes?: string) => void;
-  dismissIncident: (id: string) => void;
+  addIncident: (newIncident: Omit<Incident, 'id' | 'timeAgo'>) => Promise<Incident>;
+  updateIncidentStatus: (
+    id: string,
+    status: IncidentStatus,
+    assignedCuadrilla?: string,
+    notes?: string
+  ) => Promise<void>;
+  dismissIncident: (id: string) => Promise<void>;
   toggleUserRole: () => void;
-  refreshData: () => void;
+  refreshData: () => Promise<void>;
+  login: (email: string, password: string) => Promise<UserProfile>;
+  register: (data: {
+    nombre: string;
+    email: string;
+    password: string;
+    telefono?: string;
+    localidad: string;
+  }) => Promise<UserProfile>;
+  logout: () => void;
 }
 
 export const IncidentContext = createContext<IncidentContextType | undefined>(undefined);

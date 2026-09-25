@@ -6,7 +6,6 @@ export const BottomNav: React.FC = () => {
   return (
     <nav className="md:hidden fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl bottom-nav">
       <div className="h-16 px-space-sm flex items-center justify-around relative max-w-md mx-auto">
-        {/* 1. Inicio */}
         <NavLink
           to="/"
           end
@@ -20,7 +19,6 @@ export const BottomNav: React.FC = () => {
           <span className="font-label-sm text-label-sm mt-0.5">Inicio</span>
         </NavLink>
 
-        {/* 2. Catálogo */}
         <NavLink
           to="/catalogo"
           className={({ isActive }) =>
@@ -33,7 +31,6 @@ export const BottomNav: React.FC = () => {
           <span className="font-label-sm text-label-sm mt-0.5">Catálogo</span>
         </NavLink>
 
-        {/* 3. Central FAB: Nuevo Reporte */}
         <div className="relative -top-5 flex flex-col items-center">
           <NavLink
             to="/nuevo-reporte"
@@ -45,7 +42,6 @@ export const BottomNav: React.FC = () => {
           <span className="font-label-sm text-label-sm text-primary font-bold mt-1">Reportar</span>
         </div>
 
-        {/* 4. Gestión Municipal */}
         <NavLink
           to="/gestion"
           className={({ isActive }) =>
@@ -61,7 +57,6 @@ export const BottomNav: React.FC = () => {
           <span className="font-label-sm text-label-sm mt-0.5">Gestión</span>
         </NavLink>
 
-        {/* 5. Perfil / Acceso */}
         <NavLink
           to="/acceso"
           className={({ isActive }) =>

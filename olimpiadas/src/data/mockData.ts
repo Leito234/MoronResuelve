@@ -285,6 +285,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     ],
     assignedCuadrilla: 'Obras Públicas / Bacheo Móvil #4',
     inspectorNotes: 'Bache de gran profundidad que genera peligro para el paso del transporte público sobre carril derecho.',
+    lat: -34.6531,
+    lng: -58.6175,
     timeline: {
       receivedAt: '10:14 hs',
       reviewedAt: '11:05 hs',
@@ -312,6 +314,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     ],
     assignedCuadrilla: 'Alumbrado y Electromecánica',
     inspectorNotes: 'Sector juegos infantiles y sendero a oscuras. Requiere grúa con cesta hidráulica.',
+    lat: -34.6575,
+    lng: -58.6360,
     timeline: {
       receivedAt: '08:30 hs',
       reviewedAt: '09:15 hs',
@@ -340,6 +344,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     assignedCuadrilla: 'Higiene Urbana - Móvil 12',
     operatorInCharge: 'M. Benítez',
     inspectorNotes: 'Ramas acumuladas bloqueando rampa de discapacitados y vereda.',
+    lat: -34.6605,
+    lng: -58.6140,
     timeline: {
       receivedAt: '07:45 hs',
       reviewedAt: '08:10 hs',
@@ -364,6 +370,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     reporterEmail: 'al_garcia@eest6.edu.ar',
     images: [],
     assignedCuadrilla: 'Alumbrado #2',
+    lat: -34.6470,
+    lng: -58.6345,
     timeline: {
       receivedAt: 'Ayer 10:00 hs',
       reviewedAt: 'Ayer 11:00 hs',
@@ -388,6 +396,8 @@ export const INITIAL_INCIDENTS: Incident[] = [
     reporterEmail: 'al_garcia@eest6.edu.ar',
     images: [],
     assignedCuadrilla: 'Espacios Verdes',
+    lat: -34.6515,
+    lng: -58.6210,
     timeline: {
       receivedAt: '12 Oct 09:00 hs',
       reviewedAt: '12 Oct 10:30 hs',

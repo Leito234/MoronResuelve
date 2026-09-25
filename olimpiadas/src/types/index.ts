@@ -46,9 +46,12 @@ export interface Incident {
   operatorInCharge?: string;
   inspectorNotes?: string;
   timeline?: IncidentTimeline;
+  lat?: number;
+  lng?: number;
 }
 
 export interface UserProfile {
+  id?: number;
   name: string;
   email: string;
   phone: string;

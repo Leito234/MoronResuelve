@@ -1,16 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CATEGORIES_20 } from '../data/mockData';
-import type { IncidentArea } from '../types';
+import { categoriesApi } from '../services/api';
+import type { IncidentArea, IncidentCategory } from '../types';
 import '../styles/Catalogo.css';
 
 export const Catalogo: React.FC = () => {
+  const [categories, setCategories] = useState<IncidentCategory[]>(CATEGORIES_20);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentFilter, setCurrentFilter] = useState<IncidentArea>('all');
 
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCategories(data);
+        }
+      })
+      .catch(err => console.warn('Usando categorías locales:', err));
+  }, []);
+
   const filteredCategories = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    return CATEGORIES_20.filter(cat => {
+    return categories.filter(cat => {
       const matchesFilter = currentFilter === 'all' || cat.area === currentFilter;
       const matchesQuery =
         query === '' ||
@@ -19,13 +31,11 @@ export const Catalogo: React.FC = () => {
         cat.area.toLowerCase().includes(query);
       return matchesFilter && matchesQuery;
     });
-  }, [searchQuery, currentFilter]);
+  }, [categories, searchQuery, currentFilter]);
 
   return (
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
       <div className="max-w-4xl mx-auto w-full px-space-md pb-12">
-        
-        {/* Banner Alerta Inmediata / Emergencias */}
         <div className="relative overflow-hidden rounded-2xl bg-inverse-surface text-inverse-on-surface p-space-md shadow-md mb-space-lg mt-space-sm border border-surface-container-high/20">
           <div className="flex items-start gap-space-sm">
             <div className="w-10 h-10 rounded-xl bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-sm">
@@ -69,7 +79,6 @@ export const Catalogo: React.FC = () => {
           </div>
         </div>
 
-        {/* Header Editorial y Buscador */}
         <div className="flex flex-col mb-space-md">
           <div className="flex items-baseline justify-between mb-1">
             <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">
@@ -87,7 +96,6 @@ export const Catalogo: React.FC = () => {
           </p>
         </div>
 
-        {/* Search Input */}
         <div className="relative w-full mb-space-md">
           <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-xl">
             search
@@ -109,7 +117,6 @@ export const Catalogo: React.FC = () => {
           )}
         </div>
 
-        {/* Filtros Rápidos / Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-space-md px-space-md mb-space-md scroll-smooth no-scrollbar">
           <button
             onClick={() => setCurrentFilter('all')}
@@ -181,7 +188,6 @@ export const Catalogo: React.FC = () => {
           </button>
         </div>
 
-        {/* Grid de 2 Columnas (Mobile) y hasta 3-4 (Desktop): 20 Categorías */}
         {filteredCategories.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {filteredCategories.map((cat) => (
@@ -224,7 +230,6 @@ export const Catalogo: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Estado Vacío */
           <div className="flex flex-col items-center justify-center p-space-lg text-center my-6 bg-surface-container-low rounded-2xl border border-surface-container-high">
             <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary mb-3">
               <span className="material-symbols-outlined text-3xl">search_off</span>
@@ -244,7 +249,6 @@ export const Catalogo: React.FC = () => {
           </div>
         )}
 
-        {/* Footer informativo de Cuadrillas Morón */}
         <div className="mt-space-lg p-space-md rounded-2xl bg-surface-container flex items-center gap-space-sm border border-surface-container-highest">
           <span className="material-symbols-outlined text-primary text-3xl shrink-0">verified</span>
           <div className="flex flex-col">

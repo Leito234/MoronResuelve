@@ -10,7 +10,7 @@ import { Gestion } from './pages/Gestion';
 import { Acceso } from './pages/Acceso';
 import './App.css';
 
-// Component to scroll to top automatically on route change
+// Desplaza al inicio al cambiar de ruta
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
 
