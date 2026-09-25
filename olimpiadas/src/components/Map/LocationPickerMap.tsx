@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MORON_CENTER, getClosestLocality } from '../../utils/geoUtils';
+import { MORON_CENTER, MORON_BOUNDS, isInsideMoron, clampToMoron, getClosestLocality } from '../../utils/geoUtils';
 
 interface LocationPickerMapProps {
   initialLat?: number;
@@ -57,7 +57,9 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
   className = 'h-52',
 }) => {
   const [position, setPosition] = useState<[number, number]>(() => {
-    if (initialLat && initialLng) return [initialLat, initialLng];
+    if (initialLat && initialLng && isInsideMoron(initialLat, initialLng)) {
+      return [initialLat, initialLng];
+    }
     return MORON_CENTER;
   });
   const [isLocating, setIsLocating] = useState(false);
@@ -66,6 +68,16 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
   const markerRef = useRef<L.Marker | null>(null);
 
   const handleCoordsSelected = (lat: number, lng: number) => {
+    if (!isInsideMoron(lat, lng)) {
+      setGpsError('La ubicación seleccionada está fuera del Partido de Morón. Este sistema solo cubre Morón Centro, Castelar, Haedo, El Palomar y Villa Sarmiento.');
+      const [clampedLat, clampedLng] = clampToMoron(lat, lng);
+      setPosition([clampedLat, clampedLng]);
+      const detectedLocality = getClosestLocality(clampedLat, clampedLng);
+      onLocationChange({ lat: clampedLat, lng: clampedLng, locality: detectedLocality });
+      return;
+    }
+
+    setGpsError(null);
     setPosition([lat, lng]);
     const detectedLocality = getClosestLocality(lat, lng);
     onLocationChange({ lat, lng, locality: detectedLocality });
@@ -92,7 +104,12 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        handleCoordsSelected(latitude, longitude);
+        if (!isInsideMoron(latitude, longitude)) {
+          setGpsError('Tu GPS detectó una ubicación fuera del Partido de Morón. Se posicionó en Morón Centro.');
+          handleCoordsSelected(MORON_CENTER[0], MORON_CENTER[1]);
+        } else {
+          handleCoordsSelected(latitude, longitude);
+        }
         setIsLocating(false);
       },
       (err) => {
@@ -108,18 +125,18 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
   return (
     <div className={`relative w-full rounded-2xl overflow-hidden shadow-sm border border-surface-container-high bg-surface-container-low flex flex-col justify-between ${className}`}>
       <div className="absolute top-2.5 left-2.5 right-2.5 z-[1000] flex items-center justify-between pointer-events-none gap-2">
-        <span className="px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md font-label-sm text-label-sm font-bold text-on-surface flex items-center gap-1.5 shadow-sm border border-surface-container-high pointer-events-auto">
+        <span className="px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md font-label-sm text-xs font-bold text-on-surface flex items-center gap-1.5 shadow-sm border border-surface-container-high pointer-events-auto">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          <span>Hacé clic o arrastrá el pin</span>
+          <span>Partido de Morón</span>
         </span>
 
-        <span className="px-2.5 py-0.5 rounded-lg bg-inverse-surface/85 text-inverse-on-surface font-label-sm text-label-sm shadow pointer-events-auto font-semibold">
+        <span className="px-2.5 py-1 rounded-xl bg-inverse-surface/85 text-inverse-on-surface text-xs shadow pointer-events-auto font-bold">
           {locality}
         </span>
       </div>
 
       <div className="absolute bottom-2.5 left-2.5 right-2.5 z-[1000] flex items-center justify-between pointer-events-none gap-2">
-        <div className="bg-inverse-surface/80 backdrop-blur-md text-inverse-on-surface px-2.5 py-1 rounded-xl text-xs font-label-sm truncate max-w-[200px] pointer-events-auto shadow">
+        <div className="bg-inverse-surface/80 backdrop-blur-md text-inverse-on-surface px-3 py-1.5 rounded-xl text-xs truncate max-w-[200px] pointer-events-auto shadow">
           {address || `${position[0].toFixed(4)}, ${position[1].toFixed(4)}`}
         </div>
 
@@ -127,25 +144,40 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
           type="button"
           onClick={handleGetGps}
           disabled={isLocating}
-          title="Detectar ubicación GPS actual"
-          className="px-3 py-1.5 rounded-xl bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary font-label-md text-label-md font-bold flex items-center gap-1 shadow-md transition-colors pointer-events-auto active:scale-95 disabled:opacity-50"
+          title="Detectar ubicación GPS actual en Morón"
+          className="px-3.5 py-1.5 rounded-xl bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-md transition-colors pointer-events-auto active:scale-95 disabled:opacity-50"
         >
           <span className={`material-symbols-outlined text-sm ${isLocating ? 'animate-spin' : ''}`}>
             {isLocating ? 'progress_activity' : 'my_location'}
           </span>
-          <span>{isLocating ? 'Buscando...' : 'GPS Actual'}</span>
+          <span>{isLocating ? 'Buscando...' : 'GPS Morón'}</span>
         </button>
       </div>
 
       {gpsError && (
-        <div className="absolute top-11 left-2.5 right-2.5 z-[1000] bg-error-container text-on-error-container text-xs px-2.5 py-1 rounded-lg shadow font-medium">
-          {gpsError}
+        <div className="absolute top-11 left-2.5 right-2.5 z-[1000] bg-error-container text-on-error-container text-xs px-3 py-2 rounded-xl shadow-md border border-error/20 flex items-start justify-between gap-2 animate-in fade-in">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-base text-error shrink-0">warning</span>
+            <span>{gpsError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setGpsError(null)}
+            className="text-on-error-container hover:opacity-70 p-0.5"
+            title="Cerrar aviso"
+          >
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
         </div>
       )}
 
       <MapContainer
         center={position}
         zoom={14}
+        minZoom={12}
+        maxZoom={18}
+        maxBounds={MORON_BOUNDS}
+        maxBoundsViscosity={1.0}
         scrollWheelZoom={false}
         className="w-full h-full z-0"
       >

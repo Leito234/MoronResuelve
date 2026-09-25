@@ -27,6 +27,9 @@ export interface IncidentContextType {
     telefono?: string;
     localidad: string;
   }) => Promise<UserProfile>;
+  isAdmin: boolean;
+  loginAdmin: (username: string, password: string) => Promise<boolean>;
+  logoutAdmin: () => void;
   logout: () => void;
 }
 

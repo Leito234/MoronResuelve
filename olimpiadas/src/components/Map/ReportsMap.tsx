@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { Incident, IncidentStatus } from '../../types';
-import { MORON_CENTER, getIncidentCoords } from '../../utils/geoUtils';
+import { MORON_CENTER, MORON_BOUNDS, getIncidentCoords } from '../../utils/geoUtils';
 
 interface ReportsMapProps {
   incidents: Incident[];
@@ -169,6 +169,10 @@ export const ReportsMap: React.FC<ReportsMapProps> = ({
       <MapContainer
         center={MORON_CENTER}
         zoom={13}
+        minZoom={12}
+        maxZoom={18}
+        maxBounds={MORON_BOUNDS}
+        maxBoundsViscosity={1.0}
         scrollWheelZoom={true}
         className="w-full h-full z-0"
         ref={mapRef}

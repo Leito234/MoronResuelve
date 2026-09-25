@@ -3,12 +3,23 @@ import { Link } from 'react-router-dom';
 import { CATEGORIES_20 } from '../data/mockData';
 import { categoriesApi } from '../services/api';
 import type { IncidentArea, IncidentCategory } from '../types';
+import { EmergencyModal, type EmergencyCallInfo } from '../components/EmergencyModal';
 import '../styles/Catalogo.css';
 
 export const Catalogo: React.FC = () => {
   const [categories, setCategories] = useState<IncidentCategory[]>(CATEGORIES_20);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentFilter, setCurrentFilter] = useState<IncidentArea>('all');
+  const [emergencyModalInfo, setEmergencyModalInfo] = useState<EmergencyCallInfo | null>(null);
+
+  const handleOpenEmergencyCall = (info: EmergencyCallInfo) => {
+    try {
+      window.location.href = `tel:${info.number}`;
+    } catch {
+      // Ignora fallo de protocolo si no hay app tel
+    }
+    setEmergencyModalInfo(info);
+  };
 
   useEffect(() => {
     categoriesApi.getAll()
@@ -56,24 +67,46 @@ export const Catalogo: React.FC = () => {
               <p className="font-title-md text-title-md text-surface-container-lowest mt-0.5 font-bold">
                 ¿Riesgo de vida o caída eléctrica activa?
               </p>
-              <p className="font-body-md text-body-md text-surface-variant/80 mt-1 text-xs">
+              <p className="font-body-md text-surface-variant/90 mt-1 text-sm leading-relaxed">
                 Para emergencias críticas no esperes un ticket digital. Comunicáte de inmediato:
               </p>
-              <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <a
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-transform"
-                  href="tel:911"
+              <div className="flex items-center gap-2.5 mt-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleOpenEmergencyCall({
+                      number: '911',
+                      label: '911 Policía y Emergencias',
+                      subtitle: 'Central de Emergencias 24hs',
+                      description: 'Para riesgo de vida, delitos en curso o siniestros graves en Morón.',
+                      badge: 'Emergencia Crítica 24hs',
+                      icon: 'local_police',
+                      colorClass: 'bg-red-600 text-white',
+                    })
+                  }
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary-container text-on-primary font-title-md text-sm font-bold shadow-sm active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined text-base">call</span>
                   <span>911 Central</span>
-                </a>
-                <a
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-highest text-inverse-surface font-label-md text-label-md shadow-sm active:scale-95 transition-transform"
-                  href="tel:103"
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleOpenEmergencyCall({
+                      number: '103',
+                      label: '103 Defensa Civil Morón',
+                      subtitle: 'Emergencias Climáticas y Estructurales',
+                      description: 'Árboles caídos, postes con riesgo de colapso, cables cortados y anegamientos.',
+                      badge: 'Defensa Civil 24hs',
+                      icon: 'security',
+                      colorClass: 'bg-amber-600 text-white',
+                    })
+                  }
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-container-highest text-inverse-surface font-title-md text-sm font-bold shadow-sm active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined text-base">security</span>
                   <span>Defensa Civil: 103</span>
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -210,19 +243,19 @@ export const Catalogo: React.FC = () => {
                       {cat.number}
                     </span>
                   </div>
-                  <h3 className="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors">
+                  <h3 className="font-title-md text-title-md text-on-surface line-clamp-1 group-hover:text-primary transition-colors font-bold">
                     {cat.title}
                   </h3>
-                  <p className="font-body-md text-body-md text-secondary line-clamp-2 mt-0.5 text-xs">
+                  <p className="font-body-md text-secondary line-clamp-2 mt-1 text-sm leading-relaxed">
                     {cat.description}
                   </p>
                 </div>
                 
                 <div className="mt-3 pt-2.5 bg-surface-container-lowest flex items-center justify-between border-t border-surface-container-high/40">
-                  <span className={`px-2 py-0.5 rounded-full ${cat.colorBadgeClass} font-label-sm text-[10px] font-bold`}>
+                  <span className={`px-2.5 py-1 rounded-full ${cat.colorBadgeClass} font-label-md text-xs font-bold`}>
                     {cat.sla}
                   </span>
-                  <span className="material-symbols-outlined text-secondary text-sm group-hover:translate-x-0.5 group-hover:text-primary transition-all">
+                  <span className="material-symbols-outlined text-secondary text-base group-hover:translate-x-0.5 group-hover:text-primary transition-all">
                     arrow_forward
                   </span>
                 </div>
@@ -262,6 +295,11 @@ export const Catalogo: React.FC = () => {
         </div>
 
       </div>
+
+      <EmergencyModal
+        info={emergencyModalInfo}
+        onClose={() => setEmergencyModalInfo(null)}
+      />
     </main>
   );
 };

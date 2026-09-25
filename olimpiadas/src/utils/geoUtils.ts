@@ -2,6 +2,31 @@ import type { Incident } from '../types';
 
 export const MORON_CENTER: [number, number] = [-34.6534, -58.6198];
 
+// Límites geográficos oficiales del Partido de Morón (Provincia de Buenos Aires)
+// Formato Leaflet LatLngBoundsExpression: [[Sur, Oeste], [Norte, Este]]
+export const MORON_BOUNDS: [[number, number], [number, number]] = [
+  [-34.7080, -58.6850], // Suroeste (Castelar Sur / Morón Sur límite Merlo-Ituzaingó)
+  [-34.5800, -58.5620], // Noreste (El Palomar / Villa Sarmiento límite Tres de Febrero)
+];
+
+export function isInsideMoron(lat: number, lng: number): boolean {
+  const minLat = MORON_BOUNDS[0][0];
+  const maxLat = MORON_BOUNDS[1][0];
+  const minLng = MORON_BOUNDS[0][1];
+  const maxLng = MORON_BOUNDS[1][1];
+  return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+}
+
+export function clampToMoron(lat: number, lng: number): [number, number] {
+  const minLat = MORON_BOUNDS[0][0];
+  const maxLat = MORON_BOUNDS[1][0];
+  const minLng = MORON_BOUNDS[0][1];
+  const maxLng = MORON_BOUNDS[1][1];
+  const clampedLat = Math.min(Math.max(lat, minLat), maxLat);
+  const clampedLng = Math.min(Math.max(lng, minLng), maxLng);
+  return [clampedLat, clampedLng];
+}
+
 export const MORON_LOCALITY_COORDS: Record<string, [number, number]> = {
   'Morón Centro': [-34.6534, -58.6198],
   'Castelar Norte': [-34.6465, -58.6380],

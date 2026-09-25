@@ -56,8 +56,8 @@ export interface UserProfile {
   email: string;
   phone: string;
   locality: string;
-  level: number;
-  points: number;
   isVerified: boolean;
-  role: 'vecino' | 'inspector';
+  role: 'vecino' | 'admin' | 'inspector';
+  avatarUrl?: string;
+  photoUrl?: string;
 }

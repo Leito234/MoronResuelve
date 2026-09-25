@@ -48,25 +48,17 @@ export const Acceso: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const loggedUser = await login(loginEmail, loginPassword);
-      const isInspector = loggedUser.role === 'inspector';
-      showToast(`Sesión iniciada con éxito como ${isInspector ? 'Inspector Municipal' : 'Vecino'}`);
+      await login(loginEmail, loginPassword);
+      showToast('¡Bienvenido! Sesión iniciada con éxito');
       setTimeout(() => {
-        navigate(isInspector ? '/gestion' : '/');
-      }, 800);
+        navigate('/perfil');
+      }, 700);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión. Verificá tus credenciales.';
       setAuthError(msg);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleActivateInspectorMode = () => {
-    setLoginEmail('operaciones@moron.gob.ar');
-    setLoginPassword('password123');
-    setAuthError(null);
-    showToast('Datos de Inspector cargados. Haz clic en "Ingresar".');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -102,8 +94,8 @@ export const Acceso: React.FC = () => {
 
       showToast('¡Cuenta vecinal creada con éxito! Bienvenido a Morón Resuelve.');
       setTimeout(() => {
-        navigate('/');
-      }, 1000);
+        navigate('/perfil');
+      }, 700);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al registrar la cuenta.';
       setAuthError(msg);
@@ -312,37 +304,6 @@ export const Acceso: React.FC = () => {
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </>
                 )}
-              </button>
-
-              <div className="relative flex py-2 items-center">
-                <div className="flex-grow h-px bg-surface-container-highest"></div>
-                <span className="flex-shrink mx-4 font-label-sm text-label-sm text-secondary uppercase font-bold">
-                  o canal operativo
-                </span>
-                <div className="flex-grow h-px bg-surface-container-highest"></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleActivateInspectorMode}
-                className="w-full py-3.5 px-4 bg-inverse-surface text-inverse-on-surface rounded-2xl font-title-md text-title-md flex items-center justify-between shadow-sm hover:bg-black active:scale-98 transition-all"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-tertiary-fixed text-2xl">
-                    shield_person
-                  </span>
-                  <div className="text-left">
-                    <div className="font-title-md text-title-md text-inverse-on-surface leading-none font-bold">
-                      Personal Municipal / Inspector
-                    </div>
-                    <div className="font-label-sm text-label-sm text-secondary-fixed-dim mt-0.5 text-xs">
-                      UGC, Tránsito, Higiene Urbana & Cuadrillas
-                    </div>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-sm text-secondary-fixed-dim">
-                  navigate_next
-                </span>
               </button>
             </form>
           )}

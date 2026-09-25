@@ -8,6 +8,7 @@ import { Catalogo } from './pages/Catalogo';
 import { NuevoReporte } from './pages/NuevoReporte';
 import { Gestion } from './pages/Gestion';
 import { Acceso } from './pages/Acceso';
+import { Perfil } from './pages/Perfil';
 import './App.css';
 
 // Desplaza al inicio al cambiar de ruta
@@ -38,7 +39,8 @@ const App: React.FC = () => {
               <Route path="/gestion" element={<Gestion />} />
               <Route path="/admin" element={<Gestion />} />
               <Route path="/acceso" element={<Acceso />} />
-              <Route path="/perfil" element={<Acceso />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/mis-reportes" element={<Perfil />} />
               <Route path="*" element={<Inicio />} />
             </Routes>
           </div>

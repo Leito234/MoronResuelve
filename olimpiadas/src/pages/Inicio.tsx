@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
+import { EmergencyModal, type EmergencyCallInfo } from '../components/EmergencyModal';
 import '../styles/Inicio.css';
 
 export const Inicio: React.FC = () => {
   const { user, incidents } = useIncidents();
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [showFaqModal, setShowFaqModal] = useState<boolean>(false);
+  const [emergencyModalInfo, setEmergencyModalInfo] = useState<EmergencyCallInfo | null>(null);
 
-  const activeIncident = incidents.find(
+  const handleOpenEmergencyCall = (info: EmergencyCallInfo) => {
+    try {
+      window.location.href = `tel:${info.number}`;
+    } catch {
+      // Ignora fallo de protocolo si no hay app tel registrada
+    }
+    setEmergencyModalInfo(info);
+  };
+
+  const userIncidents = React.useMemo(() => {
+    if (!user || !user.email) return [];
+    const emailLower = user.email.toLowerCase().trim();
+    const nameLower = (user.name || '').toLowerCase().trim();
+    return incidents.filter(
+      i => (i.reporterEmail && i.reporterEmail.toLowerCase().trim() === emailLower) ||
+           (i.reportedBy && i.reportedBy.toLowerCase().trim() === nameLower)
+    );
+  }, [incidents, user]);
+
+  const activeUserIncident = userIncidents.find(
     i => i.status === 'pendiente' || i.status === 'proceso'
-  ) || incidents[0];
-
-  const resolvedIncidents = incidents.filter(i => i.status === 'resuelto');
-  const totalReportsCount = incidents.length;
-  const resolvedPercentage = totalReportsCount > 0 
-    ? Math.round((resolvedIncidents.length / totalReportsCount) * 100)
-    : 100;
+  );
 
   const toggleAccordion = (id: string) => {
     setOpenAccordion(prev => (prev === id ? null : id));
@@ -53,13 +68,9 @@ export const Inicio: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex flex-col items-end shrink-0">
-            <span className="font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed px-2.5 py-0.5 rounded-full font-bold">
-              Nivel {user.level}
-            </span>
-            <span className="font-label-sm text-label-sm text-secondary mt-0.5">
-              {user.points} pts cívicos
-            </span>
+          <div className="flex items-center gap-1.5 bg-primary-fixed/60 text-on-primary-fixed px-3 py-1 rounded-full shrink-0">
+            <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
+            <span className="font-label-sm text-label-sm font-bold">Verificado</span>
           </div>
         </section>
 
@@ -99,57 +110,26 @@ export const Inicio: React.FC = () => {
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-space-sm">
-          <div className="bg-surface-container-lowest p-space-md rounded-2xl flex items-center gap-3 shadow-sm border border-surface-container-high/40">
-            <div className="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
-              <span className="material-symbols-outlined text-2xl">assignment</span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-headline-md text-headline-md text-on-surface leading-none">
-                {totalReportsCount}
-              </span>
-              <span className="font-label-sm text-label-sm text-secondary truncate mt-0.5">
-                Reportes registrados
-              </span>
-            </div>
-          </div>
-          
-          <div className="bg-surface-container-lowest p-space-md rounded-2xl flex items-center gap-3 shadow-sm border border-surface-container-high/40">
-            <div className="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed shrink-0">
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                task_alt
-              </span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-headline-md text-headline-md text-on-surface leading-none">
-                {resolvedIncidents.length}
-              </span>
-              <span className="font-label-sm text-label-sm text-secondary truncate mt-0.5">
-                Solucionados ({resolvedPercentage}%)
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {activeIncident && (
+        {/* Reclamo en curso del usuario si existe */}
+        {activeUserIncident ? (
           <section className="space-y-space-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 rounded-full bg-primary-container animate-ping"></span>
-                <h3 className="font-title-lg text-title-lg text-on-surface">Reclamo Activo en Curso</h3>
+                <h3 className="font-title-lg text-title-lg text-on-surface">Mi Reclamo en Curso</h3>
               </div>
               <span className="font-label-sm text-label-sm text-primary font-bold">
-                #{activeIncident.id}
+                #{activeUserIncident.id}
               </span>
             </div>
 
             <div className="bg-surface-container-lowest rounded-2xl p-space-md space-y-space-md shadow-sm border border-surface-container-high/40">
               <div className="flex gap-3">
-                {activeIncident.images.length > 0 ? (
+                {activeUserIncident.images.length > 0 ? (
                   <img
                     className="w-20 h-20 rounded-xl object-cover shrink-0 shadow-sm"
-                    alt={activeIncident.title}
-                    src={activeIncident.images[0]}
+                    alt={activeUserIncident.title}
+                    src={activeUserIncident.images[0]}
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-xl bg-surface-container flex items-center justify-center text-primary text-2xl shrink-0">
@@ -161,18 +141,18 @@ export const Inicio: React.FC = () => {
                   <div>
                     <div className="flex items-center justify-between gap-1">
                       <span className="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-semibold">
-                        {activeIncident.category}
+                        {activeUserIncident.category}
                       </span>
                       <span className="font-label-sm text-label-sm text-secondary">
-                        {activeIncident.timeAgo}
+                        {activeUserIncident.timeAgo}
                       </span>
                     </div>
                     <h4 className="font-title-md text-title-md text-on-surface truncate mt-1">
-                      {activeIncident.title}
+                      {activeUserIncident.title}
                     </h4>
                     <p className="font-body-md text-body-md text-secondary flex items-center gap-1 mt-0.5 truncate">
                       <span className="material-symbols-outlined text-sm text-primary">pin_drop</span>
-                      {activeIncident.location}
+                      {activeUserIncident.location}
                     </p>
                   </div>
                 </div>
@@ -183,7 +163,7 @@ export const Inicio: React.FC = () => {
                   <div className="absolute top-3.5 left-4 right-4 timeline-track -z-0">
                     <div
                       className="timeline-progress"
-                      style={{ width: getStepProgressWidth(activeIncident.timeline?.currentStep) }}
+                      style={{ width: getStepProgressWidth(activeUserIncident.timeline?.currentStep) }}
                     ></div>
                   </div>
 
@@ -195,17 +175,17 @@ export const Inicio: React.FC = () => {
                       Recibido
                     </span>
                     <span className="font-label-sm text-label-sm text-secondary scale-90">
-                      {activeIncident.timeline?.receivedAt || '10:14 hs'}
+                      {activeUserIncident.timeline?.receivedAt || '10:14 hs'}
                     </span>
                   </div>
 
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs shadow-sm font-bold ${
-                      (activeIncident.timeline?.currentStep || 1) >= 2
+                      (activeUserIncident.timeline?.currentStep || 1) >= 2
                         ? 'bg-primary-container text-on-primary'
                         : 'bg-surface-container-high text-secondary'
                     }`}>
-                      {(activeIncident.timeline?.currentStep || 1) >= 2 ? (
+                      {(activeUserIncident.timeline?.currentStep || 1) >= 2 ? (
                         <span className="material-symbols-outlined text-sm">done</span>
                       ) : (
                         '2'
@@ -215,21 +195,21 @@ export const Inicio: React.FC = () => {
                       Revisión
                     </span>
                     <span className="font-label-sm text-label-sm text-secondary scale-90">
-                      {activeIncident.timeline?.reviewedAt || '11:05 hs'}
+                      {activeUserIncident.timeline?.reviewedAt || '11:05 hs'}
                     </span>
                   </div>
 
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs shadow-md font-bold ${
-                      activeIncident.timeline?.currentStep === 3
+                      activeUserIncident.timeline?.currentStep === 3
                         ? 'bg-tertiary text-on-tertiary active'
-                        : (activeIncident.timeline?.currentStep || 1) > 3
+                        : (activeUserIncident.timeline?.currentStep || 1) > 3
                         ? 'bg-primary-container text-on-primary'
                         : 'bg-surface-container-high text-secondary'
                     }`}>
-                      {activeIncident.timeline?.currentStep === 3 ? (
+                      {activeUserIncident.timeline?.currentStep === 3 ? (
                         <span className="material-symbols-outlined text-sm animate-spin">autorenew</span>
-                      ) : (activeIncident.timeline?.currentStep || 1) > 3 ? (
+                      ) : (activeUserIncident.timeline?.currentStep || 1) > 3 ? (
                         <span className="material-symbols-outlined text-sm">done</span>
                       ) : (
                         '3'
@@ -239,17 +219,17 @@ export const Inicio: React.FC = () => {
                       Cuadrilla
                     </span>
                     <span className="font-label-sm text-label-sm text-tertiary font-bold scale-90">
-                      {activeIncident.timeline?.dispatchedAt || 'En viaje'}
+                      {activeUserIncident.timeline?.dispatchedAt || 'En viaje'}
                     </span>
                   </div>
 
                   <div className="flex flex-col items-center text-center z-10 w-1/4">
                     <div className={`step-node rounded-full flex items-center justify-center text-xs font-semibold ${
-                      activeIncident.timeline?.currentStep === 4
+                      activeUserIncident.timeline?.currentStep === 4
                         ? 'bg-primary-container text-on-primary'
                         : 'bg-surface-container-high text-secondary'
                     }`}>
-                      {activeIncident.timeline?.currentStep === 4 ? (
+                      {activeUserIncident.timeline?.currentStep === 4 ? (
                         <span className="material-symbols-outlined text-sm">done_all</span>
                       ) : (
                         '4'
@@ -259,71 +239,57 @@ export const Inicio: React.FC = () => {
                       Resuelto
                     </span>
                     <span className="font-label-sm text-label-sm text-secondary scale-90">
-                      {activeIncident.timeline?.estimatedResolution || 'Estimado 17h'}
+                      {activeUserIncident.timeline?.estimatedResolution || 'Estimado 17h'}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-4 bg-surface-container-low p-3 rounded-xl flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-base">engineering</span>
-                    <span className="font-label-sm text-label-sm text-secondary font-medium">
-                      {activeIncident.assignedCuadrilla || 'Móvil UG 4 - Despachado por UGC N° 4 Castelar'}
-                    </span>
+                {activeUserIncident.assignedCuadrilla && (
+                  <div className="mt-4 bg-surface-container-low p-3 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-secondary text-base">engineering</span>
+                      <span className="font-label-sm text-label-sm text-secondary font-medium">
+                        {activeUserIncident.assignedCuadrilla}
+                      </span>
+                    </div>
+                    <Link to="/perfil" className="font-label-sm text-label-sm text-primary font-bold hover:underline">
+                      Ver mi reporte
+                    </Link>
                   </div>
-                  <Link to="/gestion" className="font-label-sm text-label-sm text-primary font-bold hover:underline">
-                    Ver estado
-                  </Link>
-                </div>
+                )}
               </div>
             </div>
           </section>
-        )}
+        ) : null}
 
-        <section className="space-y-space-sm">
+        {/* Sección de Mis Reportes (Acceso directo a su propio historial) */}
+        <section className="bg-surface-container-lowest p-space-md rounded-2xl shadow-sm border border-surface-container-high/40">
           <div className="flex items-center justify-between">
-            <h3 className="font-title-lg text-title-lg text-on-surface">Últimos Casos Cerrados</h3>
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-xl">assignment</span>
+              </div>
+              <div>
+                <h3 className="font-title-md text-title-md text-on-surface font-bold">
+                  Mis Reportes
+                </h3>
+                <p className="font-body-md text-secondary text-xs">
+                  {userIncidents.length === 1
+                    ? 'Tenés 1 reporte registrado'
+                    : userIncidents.length > 1
+                    ? `Tenés ${userIncidents.length} reportes registrados`
+                    : 'Aún no tenés reclamos activos'}
+                </p>
+              </div>
+            </div>
+
             <Link
-              to="/catalogo"
-              className="font-label-sm text-label-sm text-primary font-bold flex items-center hover:underline"
+              to="/perfil"
+              className="px-3.5 py-2 rounded-xl bg-surface-container text-primary font-title-md text-xs font-bold hover:bg-surface-container-high flex items-center gap-1 transition-colors"
             >
-              <span>Ver Historial y Catálogo</span>
+              <span>Ver mi historial</span>
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </Link>
-          </div>
-
-          <div className="space-y-2.5">
-            {resolvedIncidents.length > 0 ? (
-              resolvedIncidents.map(item => (
-                <div
-                  key={item.id}
-                  className="bg-surface-container-lowest p-space-md rounded-2xl flex items-center justify-between shadow-sm border border-surface-container-high/40 hover:bg-surface-container-low transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined">
-                        {item.categorySlug.includes('alumbrado') ? 'lightbulb' : 'delete_sweep'}
-                      </span>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-title-md text-title-md text-on-surface truncate">
-                        {item.title}
-                      </span>
-                      <span className="font-body-md text-body-md text-secondary truncate text-xs">
-                        {item.location} • {item.timeAgo}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="font-label-sm text-label-sm bg-surface-container-high text-secondary px-2.5 py-1 rounded-full font-bold shrink-0">
-                    #{item.id}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="p-4 bg-surface-container-low rounded-2xl text-center text-secondary font-body-md">
-                No hay casos cerrados recientes.
-              </div>
-            )}
           </div>
         </section>
 
@@ -336,30 +302,63 @@ export const Inicio: React.FC = () => {
             Para riesgo de vida, cables caídos con tensión o siniestros graves, comunicate de forma directa e inmediata.
           </p>
           <div className="grid grid-cols-2 gap-2.5 pt-1">
-            <a
-              className="flex items-center justify-center gap-2 bg-on-error-container text-on-primary py-2.5 px-3 rounded-xl font-title-md text-title-md shadow-sm active:opacity-90 hover:opacity-95 transition-opacity"
-              href="tel:911"
+            <button
+              type="button"
+              onClick={() =>
+                handleOpenEmergencyCall({
+                  number: '911',
+                  label: '911 Policía y Emergencias',
+                  subtitle: 'Central de Emergencias 24hs',
+                  description: 'Para riesgo de vida, siniestros graves o delitos en curso en el partido de Morón.',
+                  badge: 'Emergencia Crítica 24hs',
+                  icon: 'local_police',
+                  colorClass: 'bg-red-600 text-white',
+                })
+              }
+              className="flex items-center justify-center gap-2.5 bg-on-error-container text-on-primary py-3 px-3.5 rounded-2xl font-title-md text-base shadow-sm active:scale-95 hover:opacity-95 transition-all text-center"
             >
-              <span className="material-symbols-outlined text-lg">local_police</span>
-              <span>911 Policía</span>
-            </a>
-            <a
-              className="flex items-center justify-center gap-2 bg-primary-container text-on-primary py-2.5 px-3 rounded-xl font-title-md text-title-md shadow-sm active:opacity-90 hover:opacity-95 transition-opacity"
-              href="tel:107"
+              <span className="material-symbols-outlined text-xl">local_police</span>
+              <span className="font-bold">911 Policía</span>
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleOpenEmergencyCall({
+                  number: '107',
+                  label: '107 SAME Morón',
+                  subtitle: 'Atención Médica y Ambulancias',
+                  description: 'Servicio de Emergencias Médicas y despacho de ambulancias en el partido de Morón.',
+                  badge: 'Salud y Ambulancias 24hs',
+                  icon: 'medical_services',
+                  colorClass: 'bg-primary text-white',
+                })
+              }
+              className="flex items-center justify-center gap-2.5 bg-primary-container text-on-primary py-3 px-3.5 rounded-2xl font-title-md text-base shadow-sm active:scale-95 hover:opacity-95 transition-all text-center"
             >
-              <span className="material-symbols-outlined text-lg">medical_services</span>
-              <span>107 SAME Morón</span>
-            </a>
+              <span className="material-symbols-outlined text-xl">medical_services</span>
+              <span className="font-bold">107 SAME Morón</span>
+            </button>
           </div>
           <div className="flex items-center justify-between pt-1">
-            <a
-              className="font-label-sm text-label-sm text-secondary flex items-center gap-1 hover:text-on-surface"
-              href="tel:08005556676"
+            <button
+              type="button"
+              onClick={() =>
+                handleOpenEmergencyCall({
+                  number: '08005556676',
+                  label: 'Línea Municipal OIR Morón',
+                  subtitle: 'Atención Ciudadana y Reclamos',
+                  description: 'Oficina de Información y Reclamos Vecinales del Municipio de Morón.',
+                  badge: 'Línea Gratuita Vecinal',
+                  icon: 'support_agent',
+                  colorClass: 'bg-secondary text-white',
+                })
+              }
+              className="font-label-md text-sm text-secondary flex items-center gap-1.5 hover:text-on-surface transition-colors"
             >
-              <span className="material-symbols-outlined text-sm">support_agent</span>
-              Línea Municipal OIR: 0800-555-6676
-            </a>
-            <span className="font-label-sm text-label-sm text-secondary">Lun a Vie 8-20h</span>
+              <span className="material-symbols-outlined text-base">support_agent</span>
+              <span>Línea Municipal OIR: 0800-555-6676</span>
+            </button>
+            <span className="font-label-sm text-xs text-secondary">Lun a Vie 8-20h</span>
           </div>
         </section>
 
@@ -556,6 +555,11 @@ export const Inicio: React.FC = () => {
           </div>
         </div>
       )}
+
+      <EmergencyModal
+        info={emergencyModalInfo}
+        onClose={() => setEmergencyModalInfo(null)}
+      />
     </main>
   );
 };

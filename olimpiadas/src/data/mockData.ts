@@ -5,8 +5,6 @@ export const INITIAL_USER: UserProfile = {
   email: 'al_garcia@eest6.edu.ar',
   phone: '11-2345-6789',
   locality: 'Castelar Sur',
-  level: 3,
-  points: 850,
   isVerified: true,
   role: 'vecino',
 };

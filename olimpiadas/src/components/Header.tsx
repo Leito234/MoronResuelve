@@ -5,7 +5,7 @@ import { LOCALITIES } from '../data/mockData';
 import '../styles/Header.css';
 
 export const Header: React.FC = () => {
-  const { user, selectedLocality, setSelectedLocality } = useIncidents();
+  const { selectedLocality, setSelectedLocality, isAdmin } = useIncidents();
   const [showLocalityMenu, setShowLocalityMenu] = useState(false);
   const [showNotificationToast, setShowNotificationToast] = useState(false);
   const location = useLocation();
@@ -89,7 +89,7 @@ export const Header: React.FC = () => {
             }`}
           >
             <span>Gestión Municipal</span>
-            {user.role === 'inspector' && (
+            {isAdmin && (
               <span className="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
             )}
           </Link>
@@ -116,34 +116,18 @@ export const Header: React.FC = () => {
           </button>
 
           <Link
-            to="/acceso"
-            className={`px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 transition-all ${
-              user.role === 'inspector'
-                ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed shadow-sm'
+            to="/perfil"
+            className={`px-3 py-1.5 rounded-full font-label-sm text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+              isAdmin
+                ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed shadow-sm hover:opacity-90'
                 : 'bg-primary-fixed text-on-primary-fixed hover:bg-primary-fixed-dim'
             }`}
-            title={
-              user.role === 'inspector'
-                ? 'Sesión con rol oficial: Inspector Municipal'
-                : 'Sesión activa como Vecino. Para rol Inspector iniciá sesión con cuenta oficial.'
-            }
+            title={isAdmin ? 'Sesión de Gestión: Administrador' : 'Sesión activa como Vecino'}
           >
-            <span className="material-symbols-outlined text-xs">
-              {user.role === 'inspector' ? 'shield_person' : 'person'}
+            <span className="material-symbols-outlined text-sm">
+              {isAdmin ? 'shield_person' : 'person'}
             </span>
-            <span className="capitalize">{user.role === 'inspector' ? 'Inspector' : 'Vecino'}</span>
-          </Link>
-
-          <Link
-            to="/acceso"
-            className="relative flex items-center profile-avatar"
-            title="Ver Perfil o Iniciar Sesión"
-          >
-            <img
-              alt="Perfil"
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 shadow-sm"
-              src="https://lh3.googleusercontent.com/aida/AEtjO1WpXKhpto8R74YS0sS_ukTHt-ToxmFV4JJMpH0S4O_Xq7FH6VhcOSiZYtlaXvECnAQn2gOP78uArErUPBSQwwf0bLEXzxOyrr838CfD4SIVmQ_N7M9Yayxyt5ztOLxb-3_1xS2OWRItHVDEau4FiZYfVJW-EpM6rGXf7DkWVghS_3WSHYFiQn3pN77wGiEjJC8q-UrgTAEx06aFsJuBKPDSSm8NLFkvheahEh76ka6mS-ZcTYjrbaf4vINDkDjdVuoc0QTKdWsD0g"
-            />
+            <span className="capitalize">{isAdmin ? 'Admin' : 'Vecino'}</span>
           </Link>
         </div>
       </div>

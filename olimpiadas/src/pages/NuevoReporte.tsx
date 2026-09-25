@@ -4,6 +4,7 @@ import { useIncidents } from '../context/useIncidents';
 import type { UrgencyLevel } from '../types';
 import { LocationPickerMap } from '../components/Map/LocationPickerMap';
 import { MORON_LOCALITY_COORDS } from '../utils/geoUtils';
+import { CATEGORIES_20 } from '../data/mockData';
 import '../styles/NuevoReporte.css';
 
 export const NuevoReporte: React.FC = () => {
@@ -14,6 +15,7 @@ export const NuevoReporte: React.FC = () => {
   const catFromUrl = searchParams.get('name') || searchParams.get('cat');
   const [category, setCategory] = useState<string>(catFromUrl || 'Bacheo y Asfalto');
   const [isCatalogDrawerOpen, setIsCatalogDrawerOpen] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState('');
 
   const [address, setAddress] = useState<string>('Belgrano y 9 de Julio, Morón Centro');
   const [locality, setLocality] = useState<string>('Morón Centro');
@@ -88,11 +90,14 @@ export const NuevoReporte: React.FC = () => {
         'Semáforo titilando': 'vialidad',
       };
 
+      const catMatch = CATEGORIES_20.find(c => c.title.toLowerCase() === category.toLowerCase());
+      const resolvedArea = catMatch?.area || areaMap[category] || 'vialidad';
+
       const newInc = await addIncident({
         title: category + ' en ' + (address.split(',')[0] || 'vía pública'),
         category,
         categorySlug: category.toLowerCase().replace(/\s+/g, '-'),
-        area: areaMap[category] || 'vialidad',
+        area: resolvedArea,
         description,
         location: address,
         locality,
@@ -211,34 +216,107 @@ export const NuevoReporte: React.FC = () => {
             </button>
 
             {isCatalogDrawerOpen && (
-              <div className="flex flex-col gap-space-xs p-space-sm rounded-2xl bg-surface-container-lowest shadow-sm border border-surface-container-high animate-in fade-in">
-                <span className="font-label-sm text-label-sm text-secondary px-2">
-                  MÁS FRECUENTES EN TU ZONA
-                </span>
-                <div className="grid grid-cols-2 gap-space-xs">
-                  {[
-                    { name: 'Poda de Árboles', icon: '🌳' },
-                    { name: 'Sumideros Tapados', icon: '🌧️' },
-                    { name: 'Veredas Rotas', icon: '🧱' },
-                    { name: 'Auto Abandonado', icon: '🚗' },
-                  ].map((subCat) => (
+              <div className="flex flex-col gap-space-sm p-4 rounded-3xl bg-surface-container-lowest shadow-lg border border-surface-container-high animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between pb-2 border-b border-surface-container">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-xl">category</span>
+                    <div>
+                      <h4 className="font-title-sm text-sm font-bold text-on-surface">
+                        Catálogo Completo ({CATEGORIES_20.length} Categorías)
+                      </h4>
+                      <p className="text-[11px] text-secondary">
+                        Elegí una opción; el catálogo permanece abierto para que puedas cambiarla si lo deseás.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCatalogDrawerOpen(false)}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-secondary hover:text-on-surface text-xs font-bold flex items-center gap-1 transition-colors"
+                    title="Cerrar catálogo"
+                  >
+                    <span className="material-symbols-outlined text-base">close</span>
+                    <span>Cerrar</span>
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-secondary text-base pointer-events-none">
+                    search
+                  </span>
+                  <input
+                    type="text"
+                    value={catalogSearch}
+                    onChange={(e) => setCatalogSearch(e.target.value)}
+                    placeholder="Filtrar incidencias (bache, semáforo, luminaria, árbol...)"
+                    className="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-surface-container-low text-on-surface border border-surface-container-high focus:outline-none focus:border-primary transition-colors"
+                  />
+                  {catalogSearch && (
                     <button
-                      key={subCat.name}
                       type="button"
-                      onClick={() => {
-                        setCategory(subCat.name);
-                        setIsCatalogDrawerOpen(false);
-                      }}
-                      className={`text-left p-2.5 rounded-xl font-body-md text-body-md text-on-surface flex items-center gap-2 transition-colors ${
-                        category === subCat.name
-                          ? 'bg-primary text-on-primary font-bold'
-                          : 'bg-surface-container hover:bg-surface-container-high'
-                      }`}
+                      onClick={() => setCatalogSearch('')}
+                      className="absolute right-2.5 top-2 text-secondary hover:text-on-surface text-xs"
+                      title="Limpiar búsqueda"
                     >
-                      <span>{subCat.icon}</span>
-                      <span className="truncate">{subCat.name}</span>
+                      <span className="material-symbols-outlined text-sm">cancel</span>
                     </button>
-                  ))}
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
+                  {CATEGORIES_20
+                    .filter((subCat) =>
+                      subCat.title.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+                      subCat.description.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+                      subCat.area.toLowerCase().includes(catalogSearch.toLowerCase())
+                    )
+                    .map((subCat) => {
+                      const isSelected = category.toLowerCase() === subCat.title.toLowerCase();
+                      return (
+                        <button
+                          key={subCat.id}
+                          type="button"
+                          onClick={() => {
+                            setCategory(subCat.title);
+                            // Permanece abierto para permitir cambios
+                          }}
+                          className={`text-left p-3 rounded-2xl text-sm flex items-center justify-between gap-2 border transition-all ${
+                            isSelected
+                              ? 'bg-primary text-on-primary border-primary font-bold shadow-sm ring-2 ring-primary/30'
+                              : 'bg-surface-container text-on-surface border-surface-container-high/60 hover:bg-surface-container-high'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <span className="material-symbols-outlined text-lg flex-shrink-0 opacity-90">
+                              {subCat.icon}
+                            </span>
+                            <div className="truncate">
+                              <span className="truncate block font-semibold text-sm">{subCat.title}</span>
+                              <span className={`text-xs block capitalize ${isSelected ? 'text-on-primary/80' : 'text-secondary'}`}>
+                                Área: {subCat.area}
+                              </span>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <span className="material-symbols-outlined text-lg flex-shrink-0">
+                              check_circle
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                </div>
+
+                <div className="flex items-center justify-between pt-2.5 border-t border-surface-container text-xs text-secondary">
+                  <span>Categoría activa: <strong className="text-on-surface">{category}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => setIsCatalogDrawerOpen(false)}
+                    className="text-primary font-bold hover:underline flex items-center gap-1 text-xs"
+                  >
+                    <span>Listo, cerrar</span>
+                    <span className="material-symbols-outlined text-sm">done</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -293,16 +371,45 @@ export const NuevoReporte: React.FC = () => {
                 )}
               </div>
 
+              {address && (
+                (() => {
+                  const lower = address.toLowerCase();
+                  const outsideKeywords = [
+                    'caba', 'capital federal', 'palermo', 'recoleta', 'san telmo',
+                    'la matanza', 'san justo', 'ramos mejia', 'ramos mejía', 'merlo', 'ituzaingo',
+                    'ituzaingó', 'moreno', 'hurlingham', 'tres de febrero', 'caseros', 'quilmes',
+                    'lanus', 'lanús', 'avellaneda', 'lomas de zamora', 'san isidro', 'vicente lopez'
+                  ];
+                  const isOutside = outsideKeywords.some(keyword => lower.includes(keyword));
+                  if (!isOutside) return null;
+                  return (
+                    <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200 rounded-2xl text-xs flex items-start gap-2 shadow-xs animate-in fade-in">
+                      <span className="material-symbols-outlined text-base text-amber-600 shrink-0 mt-0.5">info</span>
+                      <div className="flex-1">
+                        <strong className="block text-xs font-bold">Aviso de Cobertura Territorial</strong>
+                        <p className="mt-0.5 text-xs leading-relaxed">
+                          La dirección parece pertenecer a otro distrito. Este sistema solo gestiona incidencias dentro del <strong>Partido de Morón</strong> (Morón Centro, Castelar, Haedo, El Palomar y Villa Sarmiento).
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+
               <div className="flex items-center gap-space-xs overflow-x-auto no-scrollbar pt-1">
-                <span className="font-label-sm text-label-sm text-secondary whitespace-nowrap mr-1 font-bold">
+                <span className="font-label-sm text-xs text-secondary whitespace-nowrap mr-1 font-bold">
                   Localidades:
                 </span>
-                {['Morón Centro', 'Castelar Sur', 'Haedo Norte', 'El Palomar', 'Villa Sarmiento'].map(loc => (
+                {['Morón Centro', 'Castelar Norte', 'Castelar Sur', 'Haedo', 'El Palomar', 'Morón Sur', 'Villa Sarmiento'].map(loc => (
                   <button
                     key={loc}
                     type="button"
                     onClick={() => handleSelectLocality(loc)}
-                    className="px-2.5 py-1 rounded-lg bg-surface-container font-label-sm text-label-sm font-semibold text-secondary hover:bg-primary-fixed hover:text-on-primary-fixed-variant transition-colors whitespace-nowrap"
+                    className={`px-3 py-1.5 rounded-xl font-label-sm text-xs font-semibold transition-colors whitespace-nowrap ${
+                      locality === loc
+                        ? 'bg-primary text-on-primary font-bold shadow-sm'
+                        : 'bg-surface-container text-secondary hover:bg-surface-container-high hover:text-on-surface'
+                    }`}
                   >
                     {loc}
                   </button>
@@ -452,13 +559,15 @@ export const NuevoReporte: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setUrgency('Bajo')}
-                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1 border border-surface-container-high ${
-                  urgency === 'Bajo' ? 'active-low font-bold' : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container'
+                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1.5 transition-all border ${
+                  urgency === 'Bajo'
+                    ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/50 shadow-md text-emerald-950 font-bold'
+                    : 'bg-surface-container-lowest text-on-surface border-surface-container-high hover:bg-surface-container/70'
                 }`}
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                <span className={`w-2.5 h-2.5 rounded-full transition-transform ${urgency === 'Bajo' ? 'bg-emerald-600 scale-125' : 'bg-secondary/50'}`}></span>
                 <span className="font-label-md text-label-md font-bold">Bajo</span>
-                <span className="font-label-sm text-label-sm text-secondary text-[10px] text-center leading-none">
+                <span className={`text-xs text-center leading-tight ${urgency === 'Bajo' ? 'text-emerald-800 font-semibold' : 'text-secondary'}`}>
                   Mantenimiento
                 </span>
               </button>
@@ -466,13 +575,15 @@ export const NuevoReporte: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setUrgency('Medio')}
-                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1 border border-surface-container-high ${
-                  urgency === 'Medio' ? 'active-mid font-bold' : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container'
+                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1.5 transition-all border ${
+                  urgency === 'Medio'
+                    ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/50 shadow-md text-amber-950 font-bold'
+                    : 'bg-surface-container-lowest text-on-surface border-surface-container-high hover:bg-surface-container/70'
                 }`}
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                <span className={`w-2.5 h-2.5 rounded-full transition-transform ${urgency === 'Medio' ? 'bg-amber-600 scale-125' : 'bg-secondary/50'}`}></span>
                 <span className="font-label-md text-label-md font-bold">Medio</span>
-                <span className="font-label-sm text-label-sm text-on-tertiary-fixed-variant text-[10px] text-center leading-none">
+                <span className={`text-xs text-center leading-tight ${urgency === 'Medio' ? 'text-amber-800 font-semibold' : 'text-secondary'}`}>
                   Dificulta tránsito
                 </span>
               </button>
@@ -480,13 +591,15 @@ export const NuevoReporte: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setUrgency('Alto/Riesgo')}
-                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1 border border-surface-container-high ${
-                  urgency === 'Alto/Riesgo' ? 'active-high font-bold' : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container'
+                className={`urgency-pill py-3 px-2 rounded-2xl shadow-sm flex flex-col items-center gap-1.5 transition-all border ${
+                  urgency === 'Alto/Riesgo'
+                    ? 'bg-rose-50 border-rose-600 ring-2 ring-rose-600/50 shadow-md text-rose-950 font-bold'
+                    : 'bg-surface-container-lowest text-on-surface border-surface-container-high hover:bg-surface-container/70'
                 }`}
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
-                <span className="font-label-md text-label-md font-bold text-primary">Riesgo Alto</span>
-                <span className="font-label-sm text-label-sm text-secondary text-[10px] text-center leading-none">
+                <span className={`w-2.5 h-2.5 rounded-full transition-transform ${urgency === 'Alto/Riesgo' ? 'bg-rose-600 scale-125 animate-pulse' : 'bg-secondary/50'}`}></span>
+                <span className={`font-label-md text-label-md font-bold ${urgency === 'Alto/Riesgo' ? 'text-rose-950' : 'text-on-surface'}`}>Riesgo Alto</span>
+                <span className={`text-xs text-center leading-tight ${urgency === 'Alto/Riesgo' ? 'text-rose-800 font-semibold' : 'text-secondary'}`}>
                   Peligro peatón/auto
                 </span>
               </button>
@@ -550,9 +663,14 @@ export const NuevoReporte: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[10px] font-bold">
-                  Pendiente
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[10px] font-bold">
+                    Pendiente
+                  </span>
+                  <span className="text-[10px] font-bold text-secondary">
+                    Prioridad: {urgency}
+                  </span>
+                </div>
               </div>
 
               <div className="flex flex-col w-full gap-2">

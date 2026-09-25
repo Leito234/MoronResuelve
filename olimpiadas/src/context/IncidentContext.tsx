@@ -86,13 +86,6 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       const created = await incidentsApi.create(newIncidentData);
       setIncidents(prev => [created, ...prev]);
-
-      setUser(prev => ({
-        ...prev,
-        points: prev.points + 50,
-        level: Math.floor((prev.points + 50) / 300) + 1,
-      }));
-
       return created;
     } catch (err: unknown) {
       console.warn('Fallo guardado en backend, guardando localmente:', err);
@@ -112,12 +105,6 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       };
 
       setIncidents(prev => [fallbackIncident, ...prev]);
-      setUser(prev => ({
-        ...prev,
-        points: prev.points + 50,
-        level: Math.floor((prev.points + 50) / 300) + 1,
-      }));
-
       return fallbackIncident;
     }
   };
@@ -216,10 +203,79 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setUser(INITIAL_USER);
   };
 
+  const ADMIN_USER: UserProfile = {
+    id: 999,
+    name: 'Administración Municipal Morón',
+    email: 'admin@moron.gob.ar',
+    phone: '11-4489-7777',
+    locality: 'Morón Centro',
+    isVerified: true,
+    role: 'admin',
+  };
+
+  const isAdmin = user.role === 'admin' || user.role === 'inspector';
+
+  // Función auxiliar de hashing SHA-256 (Web Crypto API) para no exponer contraseñas en texto plano en el bundle
+  const hashStringSHA256 = async (val: string): Promise<string> => {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(val);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      return '';
+    }
+  };
+
+  const loginAdmin = async (username: string, pass: string): Promise<boolean> => {
+    const cleanUser = username.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
+    // 1. Soporte para variables de entorno Vite (VITE_ADMIN_USER y VITE_ADMIN_PASS)
+    const envAdminUser = (import.meta.env.VITE_ADMIN_USER as string | undefined)?.trim().toLowerCase();
+    const envAdminPass = (import.meta.env.VITE_ADMIN_PASS as string | undefined)?.trim();
+
+    const isUserValid = envAdminUser
+      ? cleanUser === envAdminUser
+      : (cleanUser === 'admin' || cleanUser === 'admin@moron.gob.ar');
+
+    // 2. Verificación criptográfica: se compara contra el hash SHA-256 para evitar credenciales en texto plano en el bundle
+    const passHash = await hashStringSHA256(cleanPass);
+    // Hash SHA-256 precalculado para la clave administrativa por defecto
+    const DEFAULT_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
+
+    const isPassValid = envAdminPass ? cleanPass === envAdminPass : passHash === DEFAULT_PASS_HASH;
+
+    if (isUserValid && isPassValid) {
+      setUser(ADMIN_USER);
+      localStorage.setItem('moron_resuelve_user', JSON.stringify(ADMIN_USER));
+      return true;
+    }
+    throw new Error('Credenciales inválidas. Verificá usuario y contraseña.');
+  };
+
+  const logoutAdmin = () => {
+    const saved = localStorage.getItem('moron_resuelve_registered_users');
+    let fallbackUser = INITIAL_USER;
+    if (saved) {
+      try {
+        const users = JSON.parse(saved);
+        if (Array.isArray(users) && users.length > 0) {
+          fallbackUser = users[0];
+        }
+      } catch {
+        // Usa initial user
+      }
+    }
+    setUser({ ...fallbackUser, role: 'vecino' });
+    localStorage.setItem('moron_resuelve_user', JSON.stringify({ ...fallbackUser, role: 'vecino' }));
+  };
+
   const toggleUserRole = () => {
     setUser(prev => ({
       ...prev,
-      role: prev.role === 'vecino' ? 'inspector' : 'vecino',
+      role: prev.role === 'vecino' ? 'admin' : 'vecino',
     }));
   };
 
@@ -231,6 +287,7 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         selectedLocality,
         isLoading,
         error,
+        isAdmin,
         setSelectedLocality,
         setUser,
         addIncident,
@@ -241,6 +298,8 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         login,
         register,
         logout,
+        loginAdmin,
+        logoutAdmin,
       }}
     >
       {children}

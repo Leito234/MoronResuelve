@@ -55,6 +55,13 @@
 
   --font-headline: 'Outfit', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  --text-xs: 0.85rem;
+  --text-sm: 0.95rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.45rem;
+  --text-2xl: 1.7rem;
 }
 
 :root {
@@ -80,90 +87,92 @@ html, body {
   background-color: #f7f9fb;
   color: #191c1e;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16.5px;
+  line-height: 1.5;
   overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Typography Utility Classes matching the prototype */
+/* Typography Utility Classes matching high-legibility standard */
 .font-headline-xl {
   font-family: 'Outfit', sans-serif;
-  font-size: 48px;
-  line-height: 52px;
+  font-size: 52px;
+  line-height: 58px;
   letter-spacing: -0.03em;
   font-weight: 800;
 }
 
 .font-headline-xl-mobile {
   font-family: 'Outfit', sans-serif;
-  font-size: 32px;
-  line-height: 36px;
+  font-size: 36px;
+  line-height: 42px;
   letter-spacing: -0.02em;
   font-weight: 800;
 }
 
 .font-headline-lg {
   font-family: 'Outfit', sans-serif;
-  font-size: 36px;
-  line-height: 42px;
+  font-size: 40px;
+  line-height: 46px;
   letter-spacing: -0.02em;
   font-weight: 700;
 }
 
 .font-headline-lg-mobile {
   font-family: 'Outfit', sans-serif;
-  font-size: 26px;
-  line-height: 32px;
+  font-size: 28px;
+  line-height: 34px;
   letter-spacing: -0.02em;
   font-weight: 700;
 }
 
 .font-headline-md {
   font-family: 'Outfit', sans-serif;
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 25px;
+  line-height: 32px;
   font-weight: 700;
 }
 
 .font-title-lg {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 18px;
-  line-height: 24px;
+  font-size: 21px;
+  line-height: 28px;
   font-weight: 700;
 }
 
 .font-title-md {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 18.5px;
+  line-height: 25px;
   font-weight: 600;
 }
 
 .font-body-lg {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  line-height: 27px;
+  font-weight: 400;
+}
+
+.font-body-md {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
 }
 
-.font-body-md {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 400;
-}
-
 .font-label-md {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.04em;
+  font-size: 14.5px;
+  line-height: 19px;
+  letter-spacing: 0.03em;
   font-weight: 700;
 }
 
 .font-label-sm {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 13.5px;
+  line-height: 18px;
   letter-spacing: 0.02em;
   font-weight: 600;
 }

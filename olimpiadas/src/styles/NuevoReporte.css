@@ -35,20 +35,6 @@
   transition: all 0.2s ease;
 }
 
-.urgency-pill.active-low {
-  background-color: var(--color-surface-container-highest, #e0e3e5);
-}
-
-.urgency-pill.active-mid {
-  background-color: var(--color-tertiary-fixed, #ffddb8);
-  color: var(--color-on-tertiary-fixed, #2a1700);
-}
-
-.urgency-pill.active-high {
-  background-color: var(--color-primary-fixed, #ffdad7);
-  color: var(--color-on-primary-fixed-variant, #930018);
-}
-
 .submit-btn {
   box-shadow: 0 4px 14px rgba(217, 4, 41, 0.25);
   transition: all 0.2s ease;

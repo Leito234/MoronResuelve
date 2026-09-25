@@ -69,10 +69,10 @@ const getStoredUsers = (): UserProfile[] => {
     }
   }
   const defaultList: UserProfile[] = [
-    { id: 1, name: 'Juan García', email: 'al_garcia@eest6.edu.ar', phone: '11-2345-6789', locality: 'Castelar Sur', level: 3, points: 850, isVerified: true, role: 'vecino' },
-    { id: 2, name: 'Operaciones Municipales Morón', email: 'operaciones@moron.gob.ar', phone: '11-4489-7777', locality: 'Morón Centro', level: 10, points: 5000, isVerified: true, role: 'inspector' },
-    { id: 3, name: 'Mariana Rossi', email: 'm.rossi@gmail.com', phone: '11-5555-1234', locality: 'Castelar Sur', level: 2, points: 420, isVerified: true, role: 'vecino' },
-    { id: 4, name: 'Carlos Domínguez', email: 'carlos.d@moron.gob.ar', phone: '11-4444-9876', locality: 'Morón Sur', level: 5, points: 1500, isVerified: true, role: 'inspector' },
+    { id: 1, name: 'Juan García', email: 'al_garcia@eest6.edu.ar', phone: '11-2345-6789', locality: 'Castelar Sur', isVerified: true, role: 'vecino' },
+    { id: 2, name: 'Operaciones Municipales Morón', email: 'operaciones@moron.gob.ar', phone: '11-4489-7777', locality: 'Morón Centro', isVerified: true, role: 'inspector' },
+    { id: 3, name: 'Mariana Rossi', email: 'm.rossi@gmail.com', phone: '11-5555-1234', locality: 'Castelar Sur', isVerified: true, role: 'vecino' },
+    { id: 4, name: 'Carlos Domínguez', email: 'carlos.d@moron.gob.ar', phone: '11-4444-9876', locality: 'Morón Sur', isVerified: true, role: 'inspector' },
   ];
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(defaultList));
   return defaultList;
@@ -147,8 +147,6 @@ export const authApi = {
         email,
         phone: '11-4489-7777',
         locality: 'Morón Centro',
-        level: isInspectorEmail ? 10 : 1,
-        points: isInspectorEmail ? 5000 : 100,
         isVerified: true,
         role: isInspectorEmail ? 'inspector' : 'vecino',
       };
@@ -212,8 +210,6 @@ export const authApi = {
       email: userData.email,
       phone: userData.telefono || '11-2345-6789',
       locality: userData.localidad || 'Morón Centro',
-      level: 1,
-      points: 100,
       isVerified: true,
       role: isInspectorEmail ? 'inspector' : 'vecino',
     };

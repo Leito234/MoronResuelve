@@ -58,7 +58,7 @@ export const BottomNav: React.FC = () => {
         </NavLink>
 
         <NavLink
-          to="/acceso"
+          to="/perfil"
           className={({ isActive }) =>
             `flex flex-col items-center justify-center min-w-[56px] h-14 bottom-nav-link ${
               isActive ? 'text-primary font-title-md font-bold' : 'text-secondary font-body-md'

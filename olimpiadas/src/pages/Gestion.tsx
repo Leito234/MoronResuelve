@@ -1,14 +1,22 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
-import type { Incident, UserProfile } from '../types';
+import type { Incident, IncidentStatus, UserProfile } from '../types';
 import { ReportsMap } from '../components/Map/ReportsMap';
 import { MiniIncidentMap } from '../components/Map/MiniIncidentMap';
 import { usersApi } from '../services/api';
 import '../styles/Gestion.css';
 
 export const Gestion: React.FC = () => {
-  const { incidents, user, updateIncidentStatus, dismissIncident, refreshData } = useIncidents();
-  const isInspector = user.role === 'inspector';
+  const { incidents, user, updateIncidentStatus, refreshData, isAdmin, loginAdmin, logoutAdmin } = useIncidents();
+  const isInspector = isAdmin;
+
+  // Estados para login de Admin (sin credenciales precargadas)
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [isAdminSubmitting, setIsAdminSubmitting] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'mesa' | 'inspectores'>('mesa');
   const [viewMode, setViewMode] = useState<'lista' | 'mapa'>('lista');
@@ -59,10 +67,10 @@ export const Gestion: React.FC = () => {
           console.warn('Cargando lista local de usuarios:', err);
           if (isMounted) {
             setUsersList([
-              { id: 1, name: 'Juan García', email: 'al_garcia@eest6.edu.ar', phone: '11-2345-6789', locality: 'Castelar Sur', level: 3, points: 850, isVerified: true, role: 'vecino' },
-              { id: 2, name: 'Operaciones Municipales Morón', email: 'operaciones@moron.gob.ar', phone: '11-4489-7777', locality: 'Morón Centro', level: 10, points: 5000, isVerified: true, role: 'inspector' },
-              { id: 3, name: 'Mariana Rossi', email: 'm.rossi@gmail.com', phone: '11-5555-1234', locality: 'Castelar Sur', level: 2, points: 420, isVerified: true, role: 'vecino' },
-              { id: 4, name: 'Carlos Domínguez', email: 'carlos.d@moron.gob.ar', phone: '11-4444-9876', locality: 'Morón Sur', level: 5, points: 1500, isVerified: true, role: 'inspector' },
+              { id: 1, name: 'Juan García', email: 'al_garcia@eest6.edu.ar', phone: '11-2345-6789', locality: 'Castelar Sur', isVerified: true, role: 'vecino' },
+              { id: 2, name: 'Operaciones Municipales Morón', email: 'operaciones@moron.gob.ar', phone: '11-4489-7777', locality: 'Morón Centro', isVerified: true, role: 'inspector' },
+              { id: 3, name: 'Mariana Rossi', email: 'm.rossi@gmail.com', phone: '11-5555-1234', locality: 'Castelar Sur', isVerified: true, role: 'vecino' },
+              { id: 4, name: 'Carlos Domínguez', email: 'carlos.d@moron.gob.ar', phone: '11-4444-9876', locality: 'Morón Sur', isVerified: true, role: 'inspector' },
             ]);
             setIsLoadingUsers(false);
           }
@@ -132,11 +140,36 @@ export const Gestion: React.FC = () => {
     setSelectedCuadrilla(incident.assignedCuadrilla || 'Obras Públicas y Bacheo');
   };
 
-  const handleDispatchOrder = () => {
-    if (!isInspector) {
-      showToast('Acceso restringido: requiere rol de Inspector Municipal');
-      return;
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminError(null);
+    setIsAdminSubmitting(true);
+    try {
+      await loginAdmin(adminUsername, adminPassword);
+      showToast('Acceso concedido al Panel de Gestión Municipal');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Credenciales de administrador inválidas.';
+      setAdminError(msg);
+    } finally {
+      setIsAdminSubmitting(false);
     }
+  };
+
+  const handleStatusChange = (id: string, newStatus: IncidentStatus) => {
+    updateIncidentStatus(id, newStatus);
+    const labels: Record<IncidentStatus, string> = {
+      pendiente: 'Pendiente',
+      proceso: 'En Gestión',
+      resuelto: 'Resuelto',
+      desestimado: 'Rechazado',
+    };
+    showToast(`Reporte #${id} actualizado a "${labels[newStatus]}"`);
+    if (selectedIncident?.id === id) {
+      setSelectedIncident(prev => prev ? { ...prev, status: newStatus } : null);
+    }
+  };
+
+  const handleDispatchOrder = () => {
     if (!selectedIncident) return;
     updateIncidentStatus(
       selectedIncident.id,
@@ -148,24 +181,119 @@ export const Gestion: React.FC = () => {
     setSelectedIncident(null);
   };
 
-  const handleMarkResolved = (id: string) => {
-    if (!isInspector) {
-      showToast('Acceso restringido: solo inspectores pueden marcar resoluciones');
-      return;
-    }
-    updateIncidentStatus(id, 'resuelto');
-    showToast(`Reporte #${id} marcado como Resuelto`);
-    if (selectedIncident?.id === id) setSelectedIncident(null);
-  };
+  if (!isAdmin) {
+    return (
+      <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col items-center justify-center px-4">
+        <div className="max-w-md w-full bg-surface-container-lowest p-8 rounded-3xl shadow-xl border border-surface-container-high/60 relative overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
 
-  const handleDismiss = (id: string) => {
-    if (!isInspector) {
-      showToast('Acceso restringido: solo inspectores pueden desestimar reportes');
-      return;
-    }
-    dismissIncident(id);
-    showToast(`Reporte #${id} desestimado / archivado`);
-  };
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-inverse-surface text-inverse-on-surface flex items-center justify-center shadow-md mb-3 ring-2 ring-primary/30">
+              <span className="material-symbols-outlined text-3xl text-tertiary-fixed">shield_person</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+              <span>Área Restringida</span>
+            </div>
+            <h1 className="font-headline-md text-headline-md text-on-surface font-extrabold">
+              Gestión Municipal
+            </h1>
+            <p className="font-body-md text-secondary text-xs mt-1 max-w-xs">
+              Mesa de control y despacho de cuadrillas. Requiere credenciales de administración.
+            </p>
+          </div>
+
+          {adminError && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-xs flex items-center gap-2">
+              <span className="material-symbols-outlined text-base text-red-600">error</span>
+              <span>{adminError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-on-surface" htmlFor="admin-user">
+                Usuario / Correo Administrativo
+              </label>
+              <div className="relative flex items-center">
+                <span className="material-symbols-outlined absolute left-3.5 text-secondary text-lg">
+                  person
+                </span>
+                <input
+                  id="admin-user"
+                  type="text"
+                  required
+                  autoComplete="username"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  placeholder="ej: usuario@moron.gob.ar"
+                  className="w-full bg-surface-container-low text-on-surface text-sm py-3 pl-10 pr-3 rounded-2xl border border-surface-container-high focus:outline-none focus:bg-surface-container-lowest"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-on-surface" htmlFor="admin-pass">
+                Contraseña
+              </label>
+              <div className="relative flex items-center">
+                <span className="material-symbols-outlined absolute left-3.5 text-secondary text-lg">
+                  lock
+                </span>
+                <input
+                  id="admin-pass"
+                  type={showAdminPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-surface-container-low text-on-surface text-sm py-3 pl-10 pr-10 rounded-2xl border border-surface-container-high focus:outline-none focus:bg-surface-container-lowest"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  className="absolute right-3 text-secondary p-1 hover:text-on-surface"
+                >
+                  <span className="material-symbols-outlined text-base">
+                    {showAdminPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isAdminSubmitting}
+              className="w-full py-3.5 bg-inverse-surface text-inverse-on-surface rounded-2xl font-bold text-sm shadow-md hover:bg-black active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isAdminSubmitting ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                  <span>Verificando acceso...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-base text-tertiary-fixed">login</span>
+                  <span>Ingresar al Panel de Gestión</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-5 pt-4 border-t border-surface-container-high text-center">
+            <Link
+              to="/"
+              className="text-xs text-secondary hover:text-primary font-bold inline-flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-sm">arrow_back</span>
+              <span>Volver a la App Vecinal</span>
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col">
@@ -178,20 +306,33 @@ export const Gestion: React.FC = () => {
               <div className="flex items-center gap-1.5 bg-surface-container-lowest/15 px-3 py-1 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-ping"></span>
                 <span className="font-label-sm text-label-sm text-tertiary-fixed tracking-wider uppercase font-bold">
-                  {isInspector ? 'Mesa de Control • Inspector Municipal' : 'Consulta Ciudadana • Municipio de Morón'}
+                  Mesa de Control • Gestión Municipal (Admin)
                 </span>
               </div>
               
-              <button
-                onClick={handleRefresh}
-                className="flex items-center gap-1 text-surface-variant hover:text-on-primary active:scale-95 transition-all text-xs font-title-md bg-surface-container-lowest/10 px-3 py-1 rounded-full"
-                id="refreshBtn"
-              >
-                <span className={`material-symbols-outlined text-sm transition-transform duration-500 ${isRefreshing ? 'rotate-180' : ''}`}>
-                  sync
-                </span>
-                <span className="font-label-sm text-label-sm font-semibold">En Vivo</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRefresh}
+                  className="flex items-center gap-1 text-surface-variant hover:text-on-primary active:scale-95 transition-all text-xs font-title-md bg-surface-container-lowest/10 px-3 py-1 rounded-full"
+                  id="refreshBtn"
+                >
+                  <span className={`material-symbols-outlined text-sm transition-transform duration-500 ${isRefreshing ? 'rotate-180' : ''}`}>
+                    sync
+                  </span>
+                  <span className="font-label-sm text-label-sm font-semibold">En Vivo</span>
+                </button>
+                <button
+                  onClick={() => {
+                    logoutAdmin();
+                    showToast('Sesión de administración cerrada');
+                  }}
+                  className="flex items-center gap-1 text-rose-300 hover:text-rose-100 active:scale-95 transition-all text-xs font-title-md bg-rose-950/40 border border-rose-800/40 px-3 py-1 rounded-full"
+                  title="Salir del modo administración"
+                >
+                  <span className="material-symbols-outlined text-xs">logout</span>
+                  <span className="font-label-sm text-label-sm font-semibold">Salir de Admin</span>
+                </button>
+              </div>
             </div>
 
             <div className="flex items-baseline justify-between relative z-10">
@@ -387,9 +528,9 @@ export const Gestion: React.FC = () => {
             {[
               { id: 'all', label: `Todos (${totalCount})` },
               { id: 'pendiente', label: `Pendientes (${pendingCount})` },
-              { id: 'proceso', label: `En Proceso (${inProcessCount})` },
+              { id: 'proceso', label: `En Gestión (${inProcessCount})` },
               { id: 'resuelto', label: `Resueltos (${resolvedCount})` },
-              { id: 'desestimado', label: `Desestimados (${dismissedCount})` },
+              { id: 'desestimado', label: `Rechazados (${dismissedCount})` },
             ].map(btn => (
               <button
                 key={btn.id}
@@ -589,67 +730,74 @@ export const Gestion: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="pt-2 flex items-center gap-2">
-                    {isInspector ? (
-                      <>
-                        {isPending && (
-                          <button
-                            onClick={() => openInspectionModal(incident)}
-                            className="flex-1 h-10 bg-primary text-on-primary rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-primary-container"
-                          >
-                            <span className="material-symbols-outlined text-lg">check_circle</span>
-                            <span>Aprobar e Iniciar Cuadrilla</span>
-                          </button>
-                        )}
-
-                        {isInProcess && (
-                          <>
-                            <button
-                              onClick={() => handleMarkResolved(incident.id)}
-                              className="flex-1 h-10 bg-emerald-600 text-white rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all hover:bg-emerald-700"
-                            >
-                              <span className="material-symbols-outlined text-lg">done_all</span>
-                              <span>Completar y Cerrar</span>
-                            </button>
-                            <button
-                              onClick={() => openInspectionModal(incident)}
-                              className="h-10 px-3 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1"
-                              title="Ver Ficha Técnica"
-                            >
-                              <span className="material-symbols-outlined text-base">visibility</span>
-                            </button>
-                          </>
-                        )}
-
-                        {isResolved && (
-                          <button
-                            onClick={() => openInspectionModal(incident)}
-                            className="flex-1 h-10 bg-surface-container-high text-on-surface rounded-xl font-title-md text-body-md flex items-center justify-center gap-1.5 hover:bg-surface-container-highest"
-                          >
-                            <span className="material-symbols-outlined text-base">description</span>
-                            <span>Ver Ficha Resuelta</span>
-                          </button>
-                        )}
-
-                        {incident.status !== 'desestimado' && (
-                          <button
-                            onClick={() => handleDismiss(incident.id)}
-                            className="h-10 px-3 bg-error-container text-on-error-container rounded-xl font-title-md text-body-md flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-error/20"
-                            title="Rechazar o marcar duplicado"
-                          >
-                            <span className="material-symbols-outlined text-lg">close</span>
-                          </button>
-                        )}
-                      </>
-                    ) : (
+                  <div className="pt-2 border-t border-surface-container-high/60 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">
+                        Cambiar Estado:
+                      </span>
                       <button
                         onClick={() => openInspectionModal(incident)}
-                        className="flex-1 h-10 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-xl font-title-md text-body-md font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                        className="text-xs text-primary font-bold flex items-center gap-1 hover:underline"
+                        title="Abrir Ficha de Inspección"
                       >
-                        <span className="material-symbols-outlined text-lg text-primary">visibility</span>
-                        <span>Ver Ficha y Geolocalización</span>
+                        <span className="material-symbols-outlined text-sm">assignment</span>
+                        <span>Ficha y Cuadrilla</span>
                       </button>
-                    )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange(incident.id, 'pendiente')}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          incident.status === 'pendiente'
+                            ? 'bg-amber-500 text-white shadow-sm ring-2 ring-amber-300'
+                            : 'bg-surface-container-high text-secondary hover:bg-amber-100 hover:text-amber-900'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">hourglass_empty</span>
+                        <span>Pendiente</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange(incident.id, 'proceso')}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          incident.status === 'proceso'
+                            ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-300'
+                            : 'bg-surface-container-high text-secondary hover:bg-blue-100 hover:text-blue-900'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">engineering</span>
+                        <span>En Gestión</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange(incident.id, 'resuelto')}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          incident.status === 'resuelto'
+                            ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
+                            : 'bg-surface-container-high text-secondary hover:bg-emerald-100 hover:text-emerald-900'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">check_circle</span>
+                        <span>Resuelto</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleStatusChange(incident.id, 'desestimado')}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          incident.status === 'desestimado'
+                            ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-300'
+                            : 'bg-surface-container-high text-secondary hover:bg-rose-100 hover:text-rose-900'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">cancel</span>
+                        <span>Rechazado</span>
+                      </button>
+                    </div>
                   </div>
                 </article>
               );
@@ -730,8 +878,39 @@ export const Gestion: React.FC = () => {
             </div>
 
             <div className="space-y-1.5">
+              <label className="font-label-md text-label-md text-secondary uppercase block font-bold text-xs">
+                Estado del Reporte
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { id: 'pendiente', label: 'Pendiente', color: 'bg-amber-500' },
+                  { id: 'proceso', label: 'En Gestión', color: 'bg-blue-600' },
+                  { id: 'resuelto', label: 'Resuelto', color: 'bg-emerald-600' },
+                  { id: 'desestimado', label: 'Rechazado', color: 'bg-rose-600' },
+                ].map(st => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => {
+                      if (selectedIncident) {
+                        handleStatusChange(selectedIncident.id, st.id as IncidentStatus);
+                      }
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-bold transition-all border ${
+                      selectedIncident?.status === st.id
+                        ? `${st.color} text-white border-transparent shadow`
+                        : 'bg-surface-container-high text-on-surface border-surface-container-high hover:bg-surface-container-highest'
+                    }`}
+                  >
+                    {st.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
               <label className="font-label-md text-label-md text-secondary uppercase block font-bold">
-                Notas y Observaciones del Inspector
+                Notas y Observaciones de Gestión
               </label>
               <textarea
                 className="w-full p-3 rounded-2xl bg-surface-container-lowest shadow-sm text-body-md font-body-md text-on-surface border border-surface-container-high focus:outline-none"
