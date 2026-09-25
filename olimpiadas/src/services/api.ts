@@ -9,8 +9,100 @@ const TOKEN_KEY = 'moron_resuelve_token';
 const USERS_STORAGE_KEY = 'moron_resuelve_registered_users';
 const INCIDENTS_STORAGE_KEY = 'moron_resuelve_incidents';
 
+export const isTokenValid = (token: string | null): boolean => {
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    return false;
+  }
+
+  // 1. Si es un token JWT estándar (formato xxx.yyy.zzz con 3 segmentos)
+  const parts = token.split('.');
+  if (parts.length === 3) {
+    try {
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const parsed = JSON.parse(jsonPayload);
+      if (parsed.exp) {
+        const nowSeconds = Math.floor(Date.now() / 1000);
+        if (nowSeconds >= parsed.exp) {
+          return false;
+        }
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // 2. Si es un token simulado/offline (formato: moron-token-${id}-${timestamp})
+  if (token.startsWith('moron-token-')) {
+    const segments = token.split('-');
+    const timestampStr = segments[segments.length - 1];
+    const timestamp = parseInt(timestampStr, 10);
+    if (!isNaN(timestamp)) {
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+      if (Date.now() - timestamp > ONE_DAY_MS) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  return token.length > 8;
+};
+
+export const getRoleFromToken = (token: string | null): 'admin' | 'inspector' | 'vecino' | null => {
+  if (!token || typeof token !== 'string') {
+    return null;
+  }
+
+  // 1. Si es un JWT estándar (formato xxx.yyy.zzz con 3 segmentos)
+  const parts = token.split('.');
+  if (parts.length === 3) {
+    try {
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const parsed = JSON.parse(jsonPayload);
+      const roleClaim =
+        parsed.role ||
+        parsed['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+        (parsed.isAdmin === 'true' || parsed.isAdmin === true ? 'admin' : null);
+
+      if (roleClaim === 'admin' || roleClaim === 'inspector' || roleClaim === 'vecino') {
+        return roleClaim;
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  // 2. Si es token simulado administrativo
+  if (token.startsWith('moron-token-999-')) {
+    return 'admin';
+  }
+
+  return null;
+};
+
 export const getToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!isTokenValid(token)) {
+    if (token) {
+      removeToken();
+    }
+    return null;
+  }
+  return token;
 };
 
 export const setToken = (token: string): void => {
@@ -19,6 +111,7 @@ export const setToken = (token: string): void => {
 
 export const removeToken = (): void => {
   localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
 };
 
 const getHeaders = (includeAuth = true): HeadersInit => {
@@ -221,6 +314,19 @@ export const authApi = {
       token: mockToken,
       usuario: newUser,
     };
+  },
+
+  logout: async (): Promise<void> => {
+    try {
+      await safeFetch('/auth/logout', {
+        method: 'POST',
+        headers: getHeaders(true),
+      }, 1200);
+    } catch {
+      // Ignora fallo de red y prosigue con la invalidación local
+    } finally {
+      removeToken();
+    }
   },
 
   getProfile: async (id: number): Promise<UserProfile> => {

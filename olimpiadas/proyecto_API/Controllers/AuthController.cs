@@ -81,8 +81,10 @@ public class AuthController : ControllerBase
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, usuario.PasswordHash))
             return Unauthorized(new { message = "Email o contraseña incorrectos." });
 
-        // Determinar rol por dominio del email (como el frontend)
-        if (dto.Email.Contains("@moron.gob.ar"))
+        // Determinar rol administrativo si corresponde a cuentas oficiales
+        if (dto.Email.Equals("admin@moron.gob.ar", StringComparison.OrdinalIgnoreCase) || dto.Email.Equals("admin", StringComparison.OrdinalIgnoreCase))
+            usuario.Rol = RolUsuario.Admin;
+        else if (dto.Email.Contains("@moron.gob.ar"))
             usuario.Rol = RolUsuario.Inspector;
 
         var token = GenerarJwt(usuario);
@@ -91,6 +93,17 @@ public class AuthController : ControllerBase
             Token = token,
             Usuario = MapToPerfilDto(usuario)
         });
+    }
+
+    // ────────────────────────────────────
+    // POST /api/auth/logout
+    // ────────────────────────────────────
+    [HttpPost("logout")]
+    public ActionResult Logout()
+    {
+        // En una arquitectura basada en JWT sin estado, este endpoint formaliza el cierre
+        // de sesión en el servidor para propósitos de auditoría e invalidación en cliente.
+        return Ok(new { message = "Sesión cerrada exitosamente en el servidor." });
     }
 
     // ════════════════════════════════════
@@ -102,12 +115,21 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
 
+        var rolLower = usuario.Rol switch
+        {
+            RolUsuario.Admin => "admin",
+            RolUsuario.Inspector => "inspector",
+            _ => "vecino"
+        };
+
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new Claim(ClaimTypes.Email, usuario.Email),
             new Claim(ClaimTypes.Name, usuario.Nombre),
-            new Claim(ClaimTypes.Role, usuario.Rol.ToString().ToLower())
+            new Claim(ClaimTypes.Role, rolLower),
+            new Claim("role", rolLower),
+            new Claim("isAdmin", (rolLower == "admin" || rolLower == "inspector").ToString().ToLower())
         };
 
         var token = new JwtSecurityToken(

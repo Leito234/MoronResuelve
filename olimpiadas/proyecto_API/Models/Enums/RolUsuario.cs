@@ -7,5 +7,6 @@ namespace MoronResuelve.Api.Models.Enums;
 public enum RolUsuario
 {
     Vecino,
-    Inspector
+    Inspector,
+    Admin
 }

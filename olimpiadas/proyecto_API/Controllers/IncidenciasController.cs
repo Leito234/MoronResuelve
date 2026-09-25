@@ -36,8 +36,20 @@ public class IncidenciasController : ControllerBase
     public async Task<ActionResult<List<IncidenciaDto>>> GetAll(
         [FromQuery] string? status,
         [FromQuery] string? area,
-        [FromQuery] string? search)
+        [FromQuery] string? search,
+        [FromQuery] bool includeSensitive = false)
     {
+        if (includeSensitive && !EsAdminOInspector())
+        {
+            if (User.Identity?.IsAuthenticated != true)
+                return Unauthorized(new { message = "Autenticación requerida para acceder a datos sensibles de incidencias." });
+
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Acceso denegado: solo el personal con rol de Administrador o Inspector puede solicitar datos sensibles de los reclamos."
+            });
+        }
+
         var query = _context.Incidencias
             .Include(i => i.Imagenes)
             .Include(i => i.LineaTiempo)
@@ -69,7 +81,60 @@ public class IncidenciasController : ControllerBase
             .OrderByDescending(i => i.FechaCreacion)
             .ToListAsync();
 
-        return Ok(incidencias.Select(MapToDto).ToList());
+        var esAdmin = EsAdminOInspector();
+        return Ok(incidencias.Select(i => MapToDto(i, esAdmin)).ToList());
+    }
+
+    // ────────────────────────────────────
+    // GET /api/incidencias/gestion
+    // ────────────────────────────────────
+    [HttpGet("gestion")]
+    public async Task<ActionResult<List<IncidenciaDto>>> GetGestionMunicipal(
+        [FromQuery] string? status,
+        [FromQuery] string? area,
+        [FromQuery] string? search)
+    {
+        if (User.Identity?.IsAuthenticated != true)
+            return Unauthorized(new { message = "Autenticación requerida para acceder al panel de gestión municipal." });
+
+        if (!EsAdminOInspector())
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Acceso denegado: se requieren permisos de Administrador o Inspector Municipal para acceder a la gestión operativa."
+            });
+
+        var query = _context.Incidencias
+            .Include(i => i.Imagenes)
+            .Include(i => i.LineaTiempo)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(status) && status != "all")
+        {
+            if (Enum.TryParse<EstadoIncidencia>(status, true, out var estadoEnum))
+                query = query.Where(i => i.Estado == estadoEnum);
+        }
+
+        if (!string.IsNullOrEmpty(area) && area != "all")
+        {
+            if (Enum.TryParse<AreaIncidencia>(area, true, out var areaEnum))
+                query = query.Where(i => i.Area == areaEnum);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            var s = search.ToLower();
+            query = query.Where(i =>
+                i.Codigo.ToLower().Contains(s) ||
+                i.Titulo.ToLower().Contains(s) ||
+                i.ReportadoPor.ToLower().Contains(s) ||
+                i.Ubicacion.ToLower().Contains(s));
+        }
+
+        var incidencias = await query
+            .OrderByDescending(i => i.FechaCreacion)
+            .ToListAsync();
+
+        return Ok(incidencias.Select(i => MapToDto(i, esAdmin: true)).ToList());
     }
 
     // ────────────────────────────────────
@@ -86,7 +151,8 @@ public class IncidenciasController : ControllerBase
         if (incidencia == null)
             return NotFound(new { message = $"No se encontró la incidencia con código '{codigo}'." });
 
-        return Ok(MapToDto(incidencia));
+        var esAdmin = EsAdminOInspector();
+        return Ok(MapToDto(incidencia, esAdmin));
     }
 
     // ────────────────────────────────────
@@ -148,10 +214,11 @@ public class IncidenciasController : ControllerBase
         _context.Incidencias.Add(incidencia);
         await _context.SaveChangesAsync();
 
+        var esAdmin = EsAdminOInspector();
         return CreatedAtAction(
             nameof(GetByCodigo),
             new { codigo = incidencia.Codigo },
-            MapToDto(incidencia));
+            MapToDto(incidencia, esAdmin));
     }
 
     // ────────────────────────────────────
@@ -164,13 +231,17 @@ public class IncidenciasController : ControllerBase
         string codigo,
         [FromBody] ActualizarEstadoIncidenciaDto dto)
     {
-        // 🔒 Validación de rol en el servidor: solo inspectores pueden modificar estado/cuadrilla/notas
-        var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower();
-        if (User.Identity?.IsAuthenticated == true && rol != "inspector")
+        // 🔒 Validación server-side estricta: solo administradores o inspectores autenticados pueden modificar estado
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return Unauthorized(new { message = "Autenticación requerida para acceder a las funciones de gestión municipal." });
+        }
+
+        if (!EsAdminOInspector())
         {
             return StatusCode(StatusCodes.Status403Forbidden, new
             {
-                message = "Acceso denegado: solo el personal con rol de Inspector Municipal puede despachar órdenes de trabajo o modificar el estado de los reclamos."
+                message = "Acceso denegado: solo el personal con rol de Administrador o Inspector Municipal puede despachar órdenes de trabajo o modificar el estado de los reclamos."
             });
         }
 
@@ -212,7 +283,7 @@ public class IncidenciasController : ControllerBase
         }
 
         await _context.SaveChangesAsync();
-        return Ok(MapToDto(incidencia));
+        return Ok(MapToDto(incidencia, esAdmin: true));
     }
 
     // ────────────────────────────────────
@@ -221,6 +292,20 @@ public class IncidenciasController : ControllerBase
     [HttpDelete("{codigo}")]
     public async Task<ActionResult> Delete(string codigo)
     {
+        // 🔒 Validación server-side estricta: solo administradores o inspectores autenticados pueden eliminar reportes
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return Unauthorized(new { message = "Autenticación requerida para eliminar reclamos." });
+        }
+
+        if (!EsAdminOInspector())
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Acceso denegado: solo el personal con rol de Administrador o Inspector Municipal puede eliminar reclamos del sistema."
+            });
+        }
+
         var incidencia = await _context.Incidencias
             .FirstOrDefaultAsync(i => i.Codigo == codigo);
 
@@ -234,9 +319,21 @@ public class IncidenciasController : ControllerBase
     }
 
     // ════════════════════════════════════
-    // Mapper privado: Modelo → DTO
+    // Helpers privados de validación y mapeo
     // ════════════════════════════════════
-    private static IncidenciaDto MapToDto(Incidencia i) => new()
+
+    private bool EsAdminOInspector()
+    {
+        if (User.Identity?.IsAuthenticated != true)
+            return false;
+
+        var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower()
+                  ?? User.FindFirst("role")?.Value?.ToLower();
+
+        return rol == "admin" || rol == "inspector";
+    }
+
+    private static IncidenciaDto MapToDto(Incidencia i, bool esAdmin = false) => new()
     {
         Id = i.Codigo,
         Title = i.Titulo,
@@ -256,11 +353,12 @@ public class IncidenciasController : ControllerBase
         TimeAgo = i.TiempoTranscurrido,
         ReportedBy = i.ReportadoPor,
         ReporterEmail = i.EmailReportante,
-        ReporterPhone = i.TelefonoReportante,
+        // 🔒 Privacidad: teléfono reportante protegido para ciudadanos
+        ReporterPhone = esAdmin ? i.TelefonoReportante : null,
         Images = i.Imagenes.Select(img => img.Url).ToList(),
         AssignedCuadrilla = i.CuadrillaAsignada,
-        OperatorInCharge = i.OperadorACargo,
-        InspectorNotes = i.NotasInspector,
+        OperatorInCharge = esAdmin ? i.OperadorACargo : null,
+        InspectorNotes = esAdmin ? i.NotasInspector : null,
         Lat = i.Latitud,
         Lng = i.Longitud,
         Timeline = i.LineaTiempo != null ? new LineaTiempoDto

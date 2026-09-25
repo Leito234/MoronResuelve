@@ -54,24 +54,36 @@ export const Inicio: React.FC = () => {
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-1.5">
               <h1 className="font-headline-md text-headline-md text-on-surface truncate">
-                Hola, {user.name}
+                Hola, {user?.name || 'Vecino de Morón'}
               </h1>
               <span className="text-xl animate-bounce">👋</span>
             </div>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-                verified
+                {user ? 'verified' : 'public'}
               </span>
               <span className="font-label-sm text-label-sm text-secondary truncate">
-                {user.role === 'inspector' ? 'Personal Municipal • Mesa de Control' : `Vecino Activo • ${user.locality} / Morón`}
+                {user
+                  ? (user.role === 'inspector' ? 'Personal Municipal • Mesa de Control' : `Vecino Activo • ${user.locality} / Morón`)
+                  : 'Portal Ciudadano de Participación Urbana • Morón'}
               </span>
             </div>
           </div>
           
-          <div className="flex items-center gap-1.5 bg-primary-fixed/60 text-on-primary-fixed px-3 py-1 rounded-full shrink-0">
-            <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
-            <span className="font-label-sm text-label-sm font-bold">Verificado</span>
-          </div>
+          {user ? (
+            <div className="flex items-center gap-1.5 bg-primary-fixed/60 text-on-primary-fixed px-3 py-1 rounded-full shrink-0">
+              <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
+              <span className="font-label-sm text-label-sm font-bold">Verificado</span>
+            </div>
+          ) : (
+            <Link
+              to="/acceso"
+              className="flex items-center gap-1.5 bg-primary text-on-primary px-3.5 py-1.5 rounded-full text-xs font-bold hover:bg-primary-container transition-all shrink-0 shadow-xs"
+            >
+              <span className="material-symbols-outlined text-sm">login</span>
+              <span>Ingresar</span>
+            </Link>
+          )}
         </section>
 
         <section className="relative overflow-hidden rounded-2xl hero-banner-gradient p-space-lg text-on-primary shadow-md">

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
 import type { Incident, IncidentStatus, UserProfile } from '../types';
 import { ReportsMap } from '../components/Map/ReportsMap';
@@ -8,15 +8,8 @@ import { usersApi } from '../services/api';
 import '../styles/Gestion.css';
 
 export const Gestion: React.FC = () => {
-  const { incidents, user, updateIncidentStatus, refreshData, isAdmin, loginAdmin, logoutAdmin } = useIncidents();
+  const { incidents, user, updateIncidentStatus, refreshData, isAdmin, logoutAdmin } = useIncidents();
   const isInspector = isAdmin;
-
-  // Estados para login de Admin (sin credenciales precargadas)
-  const [adminUsername, setAdminUsername] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [adminError, setAdminError] = useState<string | null>(null);
-  const [isAdminSubmitting, setIsAdminSubmitting] = useState(false);
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'mesa' | 'inspectores'>('mesa');
   const [viewMode, setViewMode] = useState<'lista' | 'mapa'>('lista');
@@ -140,21 +133,6 @@ export const Gestion: React.FC = () => {
     setSelectedCuadrilla(incident.assignedCuadrilla || 'Obras Públicas y Bacheo');
   };
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAdminError(null);
-    setIsAdminSubmitting(true);
-    try {
-      await loginAdmin(adminUsername, adminPassword);
-      showToast('Acceso concedido al Panel de Gestión Municipal');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Credenciales de administrador inválidas.';
-      setAdminError(msg);
-    } finally {
-      setIsAdminSubmitting(false);
-    }
-  };
-
   const handleStatusChange = (id: string, newStatus: IncidentStatus) => {
     updateIncidentStatus(id, newStatus);
     const labels: Record<IncidentStatus, string> = {
@@ -182,117 +160,7 @@ export const Gestion: React.FC = () => {
   };
 
   if (!isAdmin) {
-    return (
-      <main className="relative w-full pt-16 pb-24 md:pb-12 min-h-screen bg-surface flex flex-col items-center justify-center px-4">
-        <div className="max-w-md w-full bg-surface-container-lowest p-8 rounded-3xl shadow-xl border border-surface-container-high/60 relative overflow-hidden animate-in fade-in zoom-in-95">
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
-
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-inverse-surface text-inverse-on-surface flex items-center justify-center shadow-md mb-3 ring-2 ring-primary/30">
-              <span className="material-symbols-outlined text-3xl text-tertiary-fixed">shield_person</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-2">
-              <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-              <span>Área Restringida</span>
-            </div>
-            <h1 className="font-headline-md text-headline-md text-on-surface font-extrabold">
-              Gestión Municipal
-            </h1>
-            <p className="font-body-md text-secondary text-xs mt-1 max-w-xs">
-              Mesa de control y despacho de cuadrillas. Requiere credenciales de administración.
-            </p>
-          </div>
-
-          {adminError && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl text-xs flex items-center gap-2">
-              <span className="material-symbols-outlined text-base text-red-600">error</span>
-              <span>{adminError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-on-surface" htmlFor="admin-user">
-                Usuario / Correo Administrativo
-              </label>
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3.5 text-secondary text-lg">
-                  person
-                </span>
-                <input
-                  id="admin-user"
-                  type="text"
-                  required
-                  autoComplete="username"
-                  value={adminUsername}
-                  onChange={(e) => setAdminUsername(e.target.value)}
-                  placeholder="ej: usuario@moron.gob.ar"
-                  className="w-full bg-surface-container-low text-on-surface text-sm py-3 pl-10 pr-3 rounded-2xl border border-surface-container-high focus:outline-none focus:bg-surface-container-lowest"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-on-surface" htmlFor="admin-pass">
-                Contraseña
-              </label>
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3.5 text-secondary text-lg">
-                  lock
-                </span>
-                <input
-                  id="admin-pass"
-                  type={showAdminPassword ? 'text' : 'password'}
-                  required
-                  autoComplete="current-password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-surface-container-low text-on-surface text-sm py-3 pl-10 pr-10 rounded-2xl border border-surface-container-high focus:outline-none focus:bg-surface-container-lowest"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowAdminPassword(!showAdminPassword)}
-                  className="absolute right-3 text-secondary p-1 hover:text-on-surface"
-                >
-                  <span className="material-symbols-outlined text-base">
-                    {showAdminPassword ? 'visibility_off' : 'visibility'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isAdminSubmitting}
-              className="w-full py-3.5 bg-inverse-surface text-inverse-on-surface rounded-2xl font-bold text-sm shadow-md hover:bg-black active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isAdminSubmitting ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-                  <span>Verificando acceso...</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-base text-tertiary-fixed">login</span>
-                  <span>Ingresar al Panel de Gestión</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-5 pt-4 border-t border-surface-container-high text-center">
-            <Link
-              to="/"
-              className="text-xs text-secondary hover:text-primary font-bold inline-flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-sm">arrow_back</span>
-              <span>Volver a la App Vecinal</span>
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+    return <Navigate to="/inicio" replace />;
   }
 
   return (
@@ -1057,7 +925,7 @@ export const Gestion: React.FC = () => {
               <div className="divide-y divide-surface-container-high/60 pt-2">
                 {filteredUsers.map((u) => {
                   const isUserInspector = u.role === 'inspector';
-                  const isCurrentUser = u.email === user.email;
+                  const isCurrentUser = user ? u.email === user.email : false;
 
                   return (
                     <div key={u.email} className="py-3 flex items-center justify-between gap-3">

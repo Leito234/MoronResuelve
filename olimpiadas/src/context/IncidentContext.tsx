@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Incident, IncidentStatus, UserProfile } from '../types';
-import { INITIAL_INCIDENTS, INITIAL_USER } from '../data/mockData';
+import { INITIAL_INCIDENTS } from '../data/mockData';
 import { IncidentContext } from './IncidentContextInstance';
-import { incidentsApi, authApi, removeToken } from '../services/api';
+import { incidentsApi, authApi, removeToken, getToken, isTokenValid, getRoleFromToken, setToken } from '../services/api';
 
 export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [incidents, setIncidents] = useState<Incident[]>(() => {
@@ -17,16 +17,26 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return INITIAL_INCIDENTS;
   });
 
-  const [user, setUser] = useState<UserProfile>(() => {
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const token = getToken();
+    if (!token || !isTokenValid(token)) {
+      localStorage.removeItem('moron_resuelve_user');
+      return null;
+    }
     const saved = localStorage.getItem('moron_resuelve_user');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed: UserProfile = JSON.parse(saved);
+        const tokenRole = getRoleFromToken(token);
+        if (tokenRole && parsed.role !== tokenRole) {
+          parsed.role = tokenRole;
+        }
+        return parsed;
       } catch {
-        // Ignora error de parseo y usa usuario inicial
+        localStorage.removeItem('moron_resuelve_user');
       }
     }
-    return INITIAL_USER;
+    return null;
   });
 
   const [selectedLocality, setSelectedLocality] = useState<string>('Castelar Sur');
@@ -75,7 +85,26 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('moron_resuelve_user', JSON.stringify(user));
+    if (user) {
+      localStorage.setItem('moron_resuelve_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('moron_resuelve_user');
+    }
+  }, [user]);
+
+  // Valida el estado de la sesión al montar y cuando la pestaña vuelve a tener foco
+  useEffect(() => {
+    const verifySession = () => {
+      const token = getToken();
+      if (!isTokenValid(token) && user) {
+        removeToken();
+        localStorage.removeItem('moron_resuelve_user');
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('focus', verifySession);
+    return () => window.removeEventListener('focus', verifySession);
   }, [user]);
 
   useEffect(() => {
@@ -198,9 +227,16 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      removeToken();
+    }
     removeToken();
-    setUser(INITIAL_USER);
+    localStorage.removeItem('moron_resuelve_user');
+    sessionStorage.clear();
+    setUser(null);
   };
 
   const ADMIN_USER: UserProfile = {
@@ -213,7 +249,12 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     role: 'admin',
   };
 
-  const isAdmin = user.role === 'admin' || user.role === 'inspector';
+  const currentToken = getToken();
+  const tokenRole = getRoleFromToken(currentToken);
+  const isAuthenticated = Boolean(user && isTokenValid(currentToken));
+  // Rol de autoridad derivado del JWT decodificado o del estado de sesión autenticada (nunca asumido)
+  const effectiveRole = tokenRole || user?.role;
+  const isAdmin = Boolean(isAuthenticated && (effectiveRole === 'admin' || effectiveRole === 'inspector'));
 
   // Función auxiliar de hashing SHA-256 (Web Crypto API) para no exponer contraseñas en texto plano en el bundle
   const hashStringSHA256 = async (val: string): Promise<string> => {
@@ -248,6 +289,8 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const isPassValid = envAdminPass ? cleanPass === envAdminPass : passHash === DEFAULT_PASS_HASH;
 
     if (isUserValid && isPassValid) {
+      const adminToken = `moron-token-999-${Date.now()}`;
+      setToken(adminToken);
       setUser(ADMIN_USER);
       localStorage.setItem('moron_resuelve_user', JSON.stringify(ADMIN_USER));
       return true;
@@ -256,27 +299,16 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const logoutAdmin = () => {
-    const saved = localStorage.getItem('moron_resuelve_registered_users');
-    let fallbackUser = INITIAL_USER;
-    if (saved) {
-      try {
-        const users = JSON.parse(saved);
-        if (Array.isArray(users) && users.length > 0) {
-          fallbackUser = users[0];
-        }
-      } catch {
-        // Usa initial user
-      }
-    }
-    setUser({ ...fallbackUser, role: 'vecino' });
-    localStorage.setItem('moron_resuelve_user', JSON.stringify({ ...fallbackUser, role: 'vecino' }));
+    removeToken();
+    localStorage.removeItem('moron_resuelve_user');
+    setUser(null);
   };
 
   const toggleUserRole = () => {
-    setUser(prev => ({
+    setUser(prev => prev ? ({
       ...prev,
       role: prev.role === 'vecino' ? 'admin' : 'vecino',
-    }));
+    }) : null);
   };
 
   return (
@@ -284,6 +316,7 @@ export const IncidentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         incidents,
         user,
+        isAuthenticated,
         selectedLocality,
         isLoading,
         error,

@@ -5,7 +5,7 @@ import { LOCALITIES } from '../data/mockData';
 import '../styles/Header.css';
 
 export const Header: React.FC = () => {
-  const { selectedLocality, setSelectedLocality, isAdmin } = useIncidents();
+  const { selectedLocality, setSelectedLocality, isAdmin, isAuthenticated, user } = useIncidents();
   const [showLocalityMenu, setShowLocalityMenu] = useState(false);
   const [showNotificationToast, setShowNotificationToast] = useState(false);
   const location = useLocation();
@@ -82,17 +82,17 @@ export const Header: React.FC = () => {
           >
             Catálogo (20)
           </Link>
-          <Link
-            to="/gestion"
-            className={`font-title-md text-title-md flex items-center gap-1 transition-colors ${
-              isCurrentPage('/gestion') ? 'text-primary font-bold' : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            <span>Gestión Municipal</span>
-            {isAdmin && (
+          {isAdmin && (
+            <Link
+              to="/gestion"
+              className={`font-title-md text-title-md flex items-center gap-1 transition-colors ${
+                isCurrentPage('/gestion') ? 'text-primary font-bold' : 'text-secondary hover:text-on-surface'
+              }`}
+            >
+              <span>Gestión Municipal</span>
               <span className="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
-            )}
-          </Link>
+            </Link>
+          )}
           <Link
             to="/nuevo-reporte"
             className="flex items-center gap-1.5 bg-primary text-on-primary px-3.5 py-1.5 rounded-full font-title-md text-title-md hover:bg-primary-container active:scale-95 transition-all shadow-sm"
@@ -115,20 +115,31 @@ export const Header: React.FC = () => {
             <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary-container notification-badge animate-pulse"></span>
           </button>
 
-          <Link
-            to="/perfil"
-            className={`px-3 py-1.5 rounded-full font-label-sm text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
-              isAdmin
-                ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed shadow-sm hover:opacity-90'
-                : 'bg-primary-fixed text-on-primary-fixed hover:bg-primary-fixed-dim'
-            }`}
-            title={isAdmin ? 'Sesión de Gestión: Administrador' : 'Sesión activa como Vecino'}
-          >
-            <span className="material-symbols-outlined text-sm">
-              {isAdmin ? 'shield_person' : 'person'}
-            </span>
-            <span className="capitalize">{isAdmin ? 'Admin' : 'Vecino'}</span>
-          </Link>
+          {isAuthenticated && user ? (
+            <Link
+              to="/perfil"
+              className={`px-3 py-1.5 rounded-full font-label-sm text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+                isAdmin
+                  ? 'bg-inverse-surface text-inverse-on-surface ring-1 ring-tertiary-fixed shadow-sm hover:opacity-90'
+                  : 'bg-primary-fixed text-on-primary-fixed hover:bg-primary-fixed-dim'
+              }`}
+              title={isAdmin ? 'Sesión de Gestión: Administrador' : 'Sesión activa como Vecino'}
+            >
+              <span className="material-symbols-outlined text-sm">
+                {isAdmin ? 'shield_person' : 'person'}
+              </span>
+              <span className="capitalize">{isAdmin ? 'Admin' : 'Vecino'}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/acceso"
+              className="px-3.5 py-1.5 rounded-full font-label-sm text-xs font-bold flex items-center gap-1.5 bg-primary text-on-primary hover:bg-primary-container transition-all shadow-xs"
+              title="Iniciar sesión o registrarse"
+            >
+              <span className="material-symbols-outlined text-sm">login</span>
+              <span>Ingresar</span>
+            </Link>
+          )}
         </div>
       </div>
 

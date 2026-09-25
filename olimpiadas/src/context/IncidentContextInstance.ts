@@ -3,12 +3,13 @@ import type { Incident, IncidentStatus, UserProfile } from '../types';
 
 export interface IncidentContextType {
   incidents: Incident[];
-  user: UserProfile;
+  user: UserProfile | null;
+  isAuthenticated: boolean;
   selectedLocality: string;
   isLoading: boolean;
   error: string | null;
   setSelectedLocality: (loc: string) => void;
-  setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   addIncident: (newIncident: Omit<Incident, 'id' | 'timeAgo'>) => Promise<Incident>;
   updateIncidentStatus: (
     id: string,
@@ -30,7 +31,7 @@ export interface IncidentContextType {
   isAdmin: boolean;
   loginAdmin: (username: string, password: string) => Promise<boolean>;
   logoutAdmin: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const IncidentContext = createContext<IncidentContextType | undefined>(undefined);

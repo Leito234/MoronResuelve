@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
 import { LOCALITIES } from '../data/mockData';
+import type { UserProfile } from '../types';
 
 export const Perfil: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser, incidents, logout, isLoading: isContextLoading } = useIncidents();
+  const { user, setUser, incidents, logout, isLoading: isContextLoading, isAuthenticated } = useIncidents();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'reportes'>('perfil');
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editName, setEditName] = useState<string>(user.name || '');
-  const [editPhone, setEditPhone] = useState<string>(user.phone || '');
-  const [editLocality, setEditLocality] = useState<string>(user.locality || 'Morón Centro');
-  const [editPhotoUrl, setEditPhotoUrl] = useState<string>(user.avatarUrl || user.photoUrl || '');
+  const [editName, setEditName] = useState<string>(user?.name || '');
+  const [editPhone, setEditPhone] = useState<string>(user?.phone || '');
+  const [editLocality, setEditLocality] = useState<string>(user?.locality || 'Morón Centro');
+  const [editPhotoUrl, setEditPhotoUrl] = useState<string>(user?.avatarUrl || user?.photoUrl || '');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Simula estado de carga/sincronización con fallback suave para evitar que se vea vacío
@@ -25,10 +26,12 @@ export const Perfil: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    setEditName(user.name || '');
-    setEditPhone(user.phone || '');
-    setEditLocality(user.locality || 'Morón Centro');
-    setEditPhotoUrl(user.avatarUrl || user.photoUrl || '');
+    if (user) {
+      setEditName(user.name || '');
+      setEditPhone(user.phone || '');
+      setEditLocality(user.locality || 'Morón Centro');
+      setEditPhotoUrl(user.avatarUrl || user.photoUrl || '');
+    }
   }, [user]);
 
   const showToast = (msg: string) => {
@@ -51,12 +54,13 @@ export const Perfil: React.FC = () => {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     if (!editName.trim()) {
       showToast('El nombre no puede estar vacío');
       return;
     }
 
-    const updated = {
+    const updated: UserProfile = {
       ...user,
       name: editName.trim(),
       phone: editPhone.trim(),
@@ -71,11 +75,15 @@ export const Perfil: React.FC = () => {
     showToast('Tus datos fueron actualizados correctamente.');
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     showToast('Sesión cerrada');
-    navigate('/acceso');
+    navigate('/acceso', { replace: true });
   };
+
+  if (!user || !isAuthenticated) {
+    return <Navigate to="/acceso" replace />;
+  }
 
   if (isLoading || isContextLoading) {
     return (

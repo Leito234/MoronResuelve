@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useIncidents } from '../context/useIncidents';
 import { LOCALITIES } from '../data/mockData';
 import '../styles/Acceso.css';
 
 export const Acceso: React.FC = () => {
   const navigate = useNavigate();
-  const { login, register } = useIncidents();
+  const location = useLocation();
+  const { login, register, isAuthenticated, user } = useIncidents();
+
+  const destination = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/perfil';
+  const redirectedFromProtected = Boolean((location.state as { from?: unknown })?.from);
+
+  // Si ya cuenta con sesión válida, redirige al destino de inmediato
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(destination, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate, destination]);
 
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
@@ -51,8 +62,8 @@ export const Acceso: React.FC = () => {
       await login(loginEmail, loginPassword);
       showToast('¡Bienvenido! Sesión iniciada con éxito');
       setTimeout(() => {
-        navigate('/perfil');
-      }, 700);
+        navigate(destination, { replace: true });
+      }, 500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión. Verificá tus credenciales.';
       setAuthError(msg);
@@ -94,8 +105,8 @@ export const Acceso: React.FC = () => {
 
       showToast('¡Cuenta vecinal creada con éxito! Bienvenido a Morón Resuelve.');
       setTimeout(() => {
-        navigate('/perfil');
-      }, 700);
+        navigate(destination, { replace: true });
+      }, 500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al registrar la cuenta.';
       setAuthError(msg);
@@ -166,6 +177,15 @@ export const Acceso: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {redirectedFromProtected && (
+          <div className="px-4 mt-4">
+            <div className="p-3.5 bg-primary-fixed/40 border border-primary/30 rounded-2xl flex items-center gap-3 text-xs text-on-surface shadow-xs animate-in fade-in">
+              <span className="material-symbols-outlined text-primary text-xl shrink-0">lock</span>
+              <span>Esta acción requiere identificarte. Por favor iniciá sesión o creá tu cuenta vecinal para continuar.</span>
+            </div>
+          </div>
+        )}
 
         <div className="px-4 mt-5">
           <div className="bg-surface-container-high p-1 rounded-2xl flex items-stretch shadow-inner">

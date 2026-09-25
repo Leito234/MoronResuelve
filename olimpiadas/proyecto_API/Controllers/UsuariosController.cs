@@ -30,6 +30,18 @@ public class UsuariosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<UsuarioPerfilDto>>> GetAll()
     {
+        // 🔒 Control de acceso server-side: solo administradores o inspectores pueden listar usuarios
+        if (User.Identity?.IsAuthenticated != true)
+            return Unauthorized(new { message = "Autenticación requerida para acceder al listado de usuarios." });
+
+        if (!EsAdminOInspector())
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Acceso denegado: solo personal con rol de Administrador o Inspector Municipal puede consultar el listado de usuarios."
+            });
+        }
+
         var usuarios = await _context.Usuarios
             .OrderBy(u => u.Id)
             .ToListAsync();
@@ -116,13 +128,15 @@ public class UsuariosController : ControllerBase
     [HttpPatch("{id:int}/rol")]
     public async Task<ActionResult<UsuarioPerfilDto>> UpdateRole(int id, [FromBody] CambiarRolUsuarioDto dto)
     {
-        // 🔒 Validación en el servidor: solo inspectores pueden asignar roles
-        var rolEmisor = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower();
-        if (User.Identity?.IsAuthenticated == true && rolEmisor != "inspector")
+        // 🔒 Validación en el servidor: solo administradores o inspectores pueden asignar o revocar roles
+        if (User.Identity?.IsAuthenticated != true)
+            return Unauthorized(new { message = "Autenticación requerida para modificar roles de usuario." });
+
+        if (!EsAdminOInspector())
         {
             return StatusCode(StatusCodes.Status403Forbidden, new
             {
-                message = "Acceso denegado: solo personal con rol Inspector puede asignar o revocar permisos de inspector."
+                message = "Acceso denegado: solo personal con rol de Administrador o Inspector puede asignar o revocar permisos."
             });
         }
 
@@ -137,7 +151,7 @@ public class UsuariosController : ControllerBase
         }
         else
         {
-            return BadRequest(new { message = "Rol inválido. Los roles permitidos son 'vecino' e 'inspector'." });
+            return BadRequest(new { message = "Rol inválido. Los roles permitidos son 'vecino', 'inspector' o 'admin'." });
         }
 
         return Ok(new UsuarioPerfilDto
@@ -152,5 +166,20 @@ public class UsuariosController : ControllerBase
             IsVerified = usuario.EstaVerificado,
             Role = usuario.Rol.ToString().ToLower()
         });
+    }
+
+    // ════════════════════════════════════
+    // Helper de autorización
+    // ════════════════════════════════════
+
+    private bool EsAdminOInspector()
+    {
+        if (User.Identity?.IsAuthenticated != true)
+            return false;
+
+        var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower()
+                  ?? User.FindFirst("role")?.Value?.ToLower();
+
+        return rol == "admin" || rol == "inspector";
     }
 }

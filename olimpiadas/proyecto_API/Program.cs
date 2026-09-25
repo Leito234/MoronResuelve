@@ -131,11 +131,36 @@ using (var scope = app.Services.CreateScope())
         inspector.Rol = MoronResuelve.Api.Models.Enums.RolUsuario.Inspector;
     }
 
+    // Semilla oficial del administrador municipal
+    var admin = db.Usuarios.FirstOrDefault(u => u.Email == "admin@moron.gob.ar");
+    if (admin == null)
+    {
+        db.Usuarios.Add(new MoronResuelve.Api.Models.Usuario
+        {
+            Nombre = "Administrador Municipal Morón",
+            Email = "admin@moron.gob.ar",
+            PasswordHash = passHash,
+            Telefono = "11-4489-7777",
+            Localidad = "Morón Centro",
+            Nivel = 10,
+            Puntos = 5000,
+            EstaVerificado = true,
+            Rol = MoronResuelve.Api.Models.Enums.RolUsuario.Admin,
+            FechaRegistro = DateTime.UtcNow
+        });
+    }
+    else
+    {
+        admin.PasswordHash = passHash;
+        admin.Rol = MoronResuelve.Api.Models.Enums.RolUsuario.Admin;
+    }
+
     // Semilla del vecino demo
     var vecino = db.Usuarios.FirstOrDefault(u => u.Email == "al_garcia@eest6.edu.ar");
     if (vecino != null)
     {
         vecino.PasswordHash = passHash;
+        vecino.Rol = MoronResuelve.Api.Models.Enums.RolUsuario.Vecino;
     }
 
     db.SaveChanges();
