@@ -452,3 +452,16 @@ Todos los endpoints están prefijados por `/api`. La API responde en formato JSO
 ### 5. Funcionamiento en Modo Offline / Sin Conexión
 
 - **Comportamiento:** Si el servidor backend de .NET no está encendido al abrir el frontend, la plataforma **no se rompe**: conmuta automáticamente a almacenamiento local en `localStorage`. Los reclamos se guardarán localmente y se mostrarán en la interfaz con códigos válidos (`MOR-XXXX`). Cuando el backend vuelva a estar disponible, las peticiones HTTP se restablecerán de forma transparente.
+
+---
+
+## 6. Equipo de Desarrollo
+
+Proyecto desarrollado en el marco de las **Olimpíadas Técnico-Profesionales de Programación 6to Año**:
+
+- **Leonel Mancuso** — Desarrollador Backend y Frontend
+- **Valentin Sanchez** — Desarrollador Backend y Frontend
+- **Rodrigo Molina** — Desarrollador Frontend
+- **Ezequiel Mendez** — Diseñador principal de la organización de Documentación, DER y Diagrama de flujo
+
+
